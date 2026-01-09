@@ -14,10 +14,10 @@ bool URLProvider::refreshCredential() const {
   runtime.setReadTimeout(readTimeout_);
   auto future = Darabonba::Core::doAction(req, runtime);
   auto resp = future.get();
-  if (resp->statusCode() != 200) {
-    throw Darabonba::Exception(Darabonba::Stream::readAsString(resp->body()));
+  if (resp->getStatusCode() != 200) {
+    throw Darabonba::Exception(Darabonba::Stream::readAsString(resp->getBody()));
   }
-  const auto &result = Darabonba::Stream::readAsJSON(resp->body());
+  const auto &result = Darabonba::Stream::readAsJSON(resp->getBody());
   if (result["Code"].get<std::string>() != "Success") {
     throw Darabonba::Exception(result.dump());
   }

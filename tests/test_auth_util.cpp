@@ -256,8 +256,8 @@ TEST_F(AuthUtilTest, GetNewRequestBasic) {
   std::string url = "http://example.com/test";
   auto req = AuthUtil::getNewRequest(url);
   
-  EXPECT_TRUE(req.headers().count("User-Agent") > 0);
-  std::string ua = req.headers().at("User-Agent");
+  EXPECT_TRUE(req.getHeaders().count("User-Agent") > 0);
+  std::string ua = req.getHeaders().at("User-Agent");
   EXPECT_EQ(0, ua.find("AlibabaCloud"));
   EXPECT_NE(std::string::npos, ua.find("TeaDSL/2"));
 }
@@ -267,8 +267,8 @@ TEST_F(AuthUtilTest, GetNewRequestWithCustomUA) {
   std::string customUA = "TestClient/2.0";
   auto req = AuthUtil::getNewRequest(url, customUA);
   
-  EXPECT_TRUE(req.headers().count("User-Agent") > 0);
-  std::string ua = req.headers().at("User-Agent");
+  EXPECT_TRUE(req.getHeaders().count("User-Agent") > 0);
+  std::string ua = req.getHeaders().at("User-Agent");
   EXPECT_NE(std::string::npos, ua.find("AlibabaCloud"));
   EXPECT_NE(std::string::npos, ua.find("TeaDSL/2"));
   EXPECT_NE(std::string::npos, ua.find("TestClient/2.0"));

@@ -37,10 +37,10 @@ bool RsaKeyPairProvider::refreshCredential() const {
 
   auto future = Darabonba::Core::doAction(req);
   auto resp = future.get();
-  if (resp->statusCode() != 200) {
-    throw Darabonba::Exception(Darabonba::Stream::readAsString(resp->body()));
+  if (resp->getStatusCode() != 200) {
+    throw Darabonba::Exception(Darabonba::Stream::readAsString(resp->getBody()));
   }
-  auto result = Darabonba::Stream::readAsJSON(resp->body());
+  auto result = Darabonba::Stream::readAsJSON(resp->getBody());
   if (result["Code"].get<std::string>() != "Success") {
     throw Darabonba::Exception(result.dump());
   }

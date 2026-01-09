@@ -99,7 +99,7 @@ std::string EcsRamRoleProvider::getMetadataToken() const {
   // 使用 getNewRequest 创建带 User-Agent 的请求（对应 Python SDK）
   auto req = AuthUtil::getNewRequest(url);
   req.setMethod("PUT");
-  req.headers()["X-aliyun-ecs-metadata-token-ttl-seconds"] =
+  req.getHeaders()["X-aliyun-ecs-metadata-token-ttl-seconds"] =
       std::to_string(DEFAULT_METADATA_TOKEN_DURATION);
 
   try {
@@ -110,13 +110,13 @@ std::string EcsRamRoleProvider::getMetadataToken() const {
     auto future = Darabonba::Core::doAction(req, runtime);
     const auto resp = future.get();
 
-    if (resp->statusCode() != 200) {
+    if (resp->getStatusCode() != 200) {
       throw Darabonba::Exception(
           ECS_METADATA_TOKEN_FETCH_ERROR_MSG +
-          " HttpCode=" + std::to_string(resp->statusCode()));
+          " HttpCode=" + std::to_string(resp->getStatusCode()));
     }
 
-    return Darabonba::IFStream::readAsString(resp->body());
+    return Darabonba::IFStream::readAsString(resp->getBody());
   } catch (const std::exception &e) {
     // 如果禁用了 IMDSv1，抛出异常
     if (disableIMDSv1_) {
@@ -144,7 +144,7 @@ RefreshResult EcsRamRoleProvider::doRefresh() const {
   // 尝试获取 IMDSv2 Token
   std::string metadataToken = getMetadataToken();
   if (!metadataToken.empty()) {
-    req.headers()["X-aliyun-ecs-metadata-token"] = metadataToken;
+    req.getHeaders()["X-aliyun-ecs-metadata-token"] = metadataToken;
   }
 
   // 发送请求，使用保存的超时配置
@@ -154,13 +154,13 @@ RefreshResult EcsRamRoleProvider::doRefresh() const {
   auto future = Darabonba::Core::doAction(req, runtime);
   auto resp = future.get();
 
-  if (resp->statusCode() != 200) {
+  if (resp->getStatusCode() != 200) {
     throw Darabonba::Exception(ECS_METADATA_FETCH_ERROR_MSG + " HttpCode=" +
-                               std::to_string(resp->statusCode()));
+                               std::to_string(resp->getStatusCode()));
   }
 
   // 解析响应
-  auto result = Darabonba::IFStream::readAsJSON(resp->body());
+  auto result = Darabonba::IFStream::readAsJSON(resp->getBody());
 
   std::string contentCode = result["Code"].get<std::string>();
   if (contentCode != "Success") {
@@ -206,7 +206,7 @@ std::string EcsRamRoleProvider::getRoleName() const {
   // 尝试获取 IMDSv2 Token
   std::string metadataToken = getMetadataToken();
   if (!metadataToken.empty()) {
-    req.headers()["X-aliyun-ecs-metadata-token"] = metadataToken;
+    req.getHeaders()["X-aliyun-ecs-metadata-token"] = metadataToken;
   }
 
   // 使用保存的超时配置
@@ -216,12 +216,12 @@ std::string EcsRamRoleProvider::getRoleName() const {
   auto future = Darabonba::Core::doAction(req, runtime);
   auto resp = future.get();
 
-  if (resp->statusCode() != 200) {
+  if (resp->getStatusCode() != 200) {
     throw Darabonba::Exception(ECS_METADATA_FETCH_ERROR_MSG + " HttpCode=" +
-                               std::to_string(resp->statusCode()));
+                               std::to_string(resp->getStatusCode()));
   }
 
-  return Darabonba::IFStream::readAsString(resp->body());
+  return Darabonba::IFStream::readAsString(resp->getBody());
 }
 
 // 计算 stale_time（对应 Python 的 _get_stale_time）

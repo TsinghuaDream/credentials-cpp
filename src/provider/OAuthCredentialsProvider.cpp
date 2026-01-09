@@ -32,8 +32,8 @@ bool OAuthCredentialsProvider::refreshCredential() const {
   std::string path =
       (hostEnd != std::string::npos) ? tokenEndpoint_.substr(hostEnd) : "/";
 
-  req.header()["host"] = host;
-  req.url().setHost(host);
+  req.getHeaders()["host"] = host;
+  req.getUrl().setHost(host);
   if (!path.empty() && path != "/") {
     Darabonba::Http::Query query;
     size_t queryPos = path.find('?');
@@ -44,7 +44,7 @@ bool OAuthCredentialsProvider::refreshCredential() const {
     }
   }
 
-  req.header()["Content-Type"] = "application/x-www-form-urlencoded";
+  req.getHeaders()["Content-Type"] = "application/x-www-form-urlencoded";
 
   // Build OAuth request body
   std::string body =
@@ -63,14 +63,14 @@ bool OAuthCredentialsProvider::refreshCredential() const {
   auto future = Darabonba::Core::doAction(req, runtime);
   auto resp = future.get();
 
-  if (resp->statusCode() != 200) {
+  if (resp->getStatusCode() != 200) {
     throw Darabonba::Exception(OAUTH_FETCH_ERROR_MSG + " Status code is " +
-                               std::to_string(resp->statusCode()) +
+                               std::to_string(resp->getStatusCode()) +
                                ". Body is " +
-                               Darabonba::Stream::readAsString(resp->body()));
+                               Darabonba::Stream::readAsString(resp->getBody()));
   }
 
-  auto result = Darabonba::Stream::readAsJSON(resp->body());
+  auto result = Darabonba::Stream::readAsJSON(resp->getBody());
 
   if (result.contains("error")) {
     throw Darabonba::Exception(

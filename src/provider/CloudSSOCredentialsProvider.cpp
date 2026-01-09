@@ -34,14 +34,14 @@ bool CloudSSOCredentialsProvider::refreshCredential() const {
   runtime.setReadTimeout(readTimeout_);
   auto future = Darabonba::Core::doAction(req, runtime);
   auto resp = future.get();
-  if (resp->statusCode() != 200) {
+  if (resp->getStatusCode() != 200) {
     throw Darabonba::Exception(CLOUD_SSO_FETCH_ERROR_MSG + " Status code is " +
-                               std::to_string(resp->statusCode()) +
+                               std::to_string(resp->getStatusCode()) +
                                ". Body is " +
-                               Darabonba::Stream::readAsString(resp->body()));
+                               Darabonba::Stream::readAsString(resp->getBody()));
   }
 
-  auto result = Darabonba::Stream::readAsJSON(resp->body());
+  auto result = Darabonba::Stream::readAsJSON(resp->getBody());
   if (result.contains("Code") &&
       result["Code"].get<std::string>() != "Success") {
     throw Darabonba::Exception(CLOUD_SSO_FETCH_ERROR_MSG +

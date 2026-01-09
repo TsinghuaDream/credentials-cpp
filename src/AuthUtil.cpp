@@ -156,7 +156,7 @@ AuthUtil::getNewRequest(const std::string &url,
   Darabonba::Http::Request req(url);
 
   // Set User-Agent header
-  req.headers()["User-Agent"] = getUserAgent(customUserAgent);
+  req.getHeaders()["User-Agent"] = getUserAgent(customUserAgent);
 
   return req;
 }

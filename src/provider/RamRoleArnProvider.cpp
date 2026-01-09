@@ -32,17 +32,17 @@ bool RamRoleArnProvider::refreshCredential() const {
   std::string utcDate = gmt_datetime();
   std::string nonce = Darabonba::Core::uuid();
 
-  req.header()["host"] = stsEndpoint_;
-  req.header()["x-acs-action"] = "AssumeRole";
-  req.header()["x-acs-version"] = "2015-04-01";
-  req.header()["x-acs-date"] = utcDate;
-  req.header()["x-acs-signature-nonce"] = nonce;
-  req.header()["x-acs-content-sha256"] =
+  req.getHeaders()["host"] = stsEndpoint_;
+  req.getHeaders()["x-acs-action"] = "AssumeRole";
+  req.getHeaders()["x-acs-version"] = "2015-04-01";
+  req.getHeaders()["x-acs-date"] = utcDate;
+  req.getHeaders()["x-acs-signature-nonce"] = nonce;
+  req.getHeaders()["x-acs-content-sha256"] =
       "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b9"
       "34ca495991b7852b855"; // SHA256 of empty body
 
   // Build canonical request string
-  std::string canonicalQueryString = std::string(req.query());
+  std::string canonicalQueryString = std::string(req.getQuery());
   std::string canonicalHeaders =
       "host:" + stsEndpoint_ + "\n" + "x-acs-action:AssumeRole\n" +
       "x-acs-content-sha256:"
@@ -77,7 +77,7 @@ bool RamRoleArnProvider::refreshCredential() const {
   std::string authorization =
       "ACS3-HMAC-SHA256 Credential=" + credential_.getAccessKeyId() +
       ",SignedHeaders=" + signedHeaders + ",Signature=" + signature;
-  req.header()["Authorization"] = authorization;
+  req.getHeaders()["Authorization"] = authorization;
 
   // Use saved timeout configuration
   Darabonba::RuntimeOptions runtime;
@@ -85,11 +85,11 @@ bool RamRoleArnProvider::refreshCredential() const {
   runtime.setReadTimeout(readTimeout_);
   auto future = Darabonba::Core::doAction(req, runtime);
   auto resp = future.get();
-  if (resp->statusCode() != 200) {
-    throw Darabonba::Exception(Darabonba::Stream::readAsString(resp->body()));
+  if (resp->getStatusCode() != 200) {
+    throw Darabonba::Exception(Darabonba::Stream::readAsString(resp->getBody()));
   }
 
-  auto result = Darabonba::Stream::readAsJSON(resp->body());
+  auto result = Darabonba::Stream::readAsJSON(resp->getBody());
   if (result["Code"].get<std::string>() != "Success") {
     throw Darabonba::Exception(result.dump());
   }

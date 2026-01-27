@@ -37,7 +37,7 @@ public:
             lastSuccessfulProvider_ = provider.get();
           }
           return credential;
-        } catch (Darabonba::Exception e) {
+        } catch (Darabonba::Exception& e) {
           continue;
         }
       }
@@ -64,7 +64,7 @@ public:
             lastSuccessfulProvider_ = provider.get();
           }
           return credential;
-        } catch (Darabonba::Exception e) {
+        } catch (Darabonba::Exception& e) {
           continue;
         }
       }
@@ -94,7 +94,7 @@ public:
             lastSuccessfulProvider_ = provider.get();
           }
           return name;
-        } catch (Darabonba::Exception e) {
+        } catch (Darabonba::Exception& e) {
           continue;
         }
       }

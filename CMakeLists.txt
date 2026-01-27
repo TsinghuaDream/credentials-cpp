@@ -2,8 +2,15 @@ cmake_minimum_required(VERSION 3.10)
 
 project(alibabacloud_credential VERSION "0.1.0")
 
+# Build type options
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+option(BUILD_UNIT_TESTS "Build unit tests" OFF)
+option(ENABLE_UNIT_TESTS "Enable unit tests" OFF)
+
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< General set up >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> #
-set(CMAKE_CXX_STANDARD 11)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 11)
+endif()
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -46,8 +53,6 @@ endif ()
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Target set up >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> #
-# add_library(${PROJECT_NAME} SHARED "")
-# 收集 include/AlibabaCloud 目录下的所有 .hpp 文件
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 set(SOURCE_FILES
@@ -68,7 +73,7 @@ set(SOURCE_FILES
         src/provider/CloudSSOCredentialsProvider.cpp
         src/provider/OAuthCredentialsProvider.cpp)
 
-add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
+add_library(${PROJECT_NAME} ${SOURCE_FILES})
 
 # Ensure main library uses dynamic runtime library on Windows
 if(MSVC)
@@ -97,8 +102,9 @@ if(MSVC)
 endif()
 
 target_include_directories(${PROJECT_NAME}
-        PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include)
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>)
 
 # Platform-specific library settings
 set_target_properties(${PROJECT_NAME}
@@ -151,20 +157,14 @@ else()
     message(FATAL_ERROR "  - Linux: sudo apt-get install libssl-dev")
 endif()
 
-# Find nlohmann_json for CLIProfileProvider JSON support
-find_package(nlohmann_json QUIET)
-if(nlohmann_json_FOUND)
-    message(STATUS "Found nlohmann_json, enabling JSON support for CLIProfileProvider")
-    target_compile_definitions(${PROJECT_NAME} PRIVATE HAS_NLOHMANN_JSON)
-    target_link_libraries(${PROJECT_NAME} PRIVATE darabonba_core OpenSSL::SSL OpenSSL::Crypto nlohmann_json::nlohmann_json)
-else()
-    message(WARNING "nlohmann_json not found, CLIProfileProvider will only support INI format")
-    message(STATUS "To enable JSON support, install nlohmann_json:")
-    message(STATUS "  - Windows: vcpkg install nlohmann-json")
-    message(STATUS "  - Ubuntu/Debian: sudo apt-get install nlohmann-json3-dev")
-    message(STATUS "  - macOS: brew install nlohmann-json")
-    message(STATUS "  - Or add to external dependencies")
-    target_link_libraries(${PROJECT_NAME} PRIVATE darabonba_core OpenSSL::SSL OpenSSL::Crypto)
+# Link darabonba_core (required dependency) - handled by external/darabonba_core
+# If found via find_package, link using namespace target; if built via FetchContent, link plain target
+if(TARGET darabonba_core::darabonba_core)
+    target_link_libraries(${PROJECT_NAME} PUBLIC darabonba_core::darabonba_core)
+    # Workaround: Explicitly add include directory from installed location
+    target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_INSTALL_PREFIX}/include)
+elseif(TARGET darabonba_core)
+    target_link_libraries(${PROJECT_NAME} PUBLIC darabonba_core)
 endif()
 
 # Platform-specific link libraries
@@ -374,9 +374,14 @@ install(
         LIBRARY
         DESTINATION ${INSTALL_LIBDIR}
         COMPONENT lib
-        PUBLIC_HEADER
-        DESTINATION ${INSTALL_INCLUDEDIR}/AlibabaCloud
+)
+
+# Install header files
+install(
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+        DESTINATION ${INSTALL_INCLUDEDIR}
         COMPONENT dev
+        FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
 )
 
 # Install cmake config

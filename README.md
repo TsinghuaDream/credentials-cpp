@@ -1,12 +1,34 @@
 English | [简体中文](/README-zh-CN.md)
 
 # Alibaba Cloud Credentials for C++
+
 [![codecov](https://codecov.io/gh/aliyun/credentials-cpp/branch/master/graph/badge.svg)](https://codecov.io/gh/aliyun/credentials-cpp)
 [![Travis Build Status](https://travis-ci.org/aliyun/credentials-cpp.svg?branch=master)](https://travis-ci.org/aliyun/credentials-cpp)
 
 ![](https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg)
 
 Alibaba Cloud Credentials for C++ is a tool that helps C++ developers manage their credentials.
+
+## Table of Contents
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick Examples](#quick-examples)
+- [Credential Types](#credential-types)
+  - [Default Credentials Provider Chain](#default-credentials-provider-chain)
+  - [AccessKey](#accesskey)
+  - [STS](#sts)
+  - [RamRoleArn](#ramrolearn)
+  - [OIDCRoleArn](#oidcrolearn)
+  - [EcsRamRole](#ecsramrole)
+  - [URLCredential](#urlcredential)
+  - [BearerToken](#bearertoken)
+  - [RsaKeyPair](#rsakeypair)
+- [Configuration](#configuration)
+- [Issues](#issues)
+- [Release Notes](#release-notes)
+- [Related](#related)
+- [License](#license)
 
 ## Requirements
 
@@ -18,7 +40,7 @@ Alibaba Cloud Credentials for C++ is a tool that helps C++ developers manage the
 
 ### Build Tools
 
-- **CMake**: 3.5 or later (3.10+ recommended)
+- **CMake**: 3.10 or later (3.15+ recommended for Windows)
 - **C++ Standard**: C++11 or higher
 
 ### System Requirements
@@ -28,19 +50,48 @@ Alibaba Cloud Credentials for C++ is a tool that helps C++ developers manage the
 
 ### Dependencies
 
+This library depends on **darabonba-core**, which requires the following system libraries:
+
 - **OpenSSL**: For encryption and network communication
-  - Windows: Install via vcpkg or chocolatey
+  - Windows: Install via vcpkg (`vcpkg install openssl`) or chocolatey (`choco install openssl`)
   - Linux: `sudo apt-get install libssl-dev` (Ubuntu/Debian) or `sudo yum install openssl-devel` (CentOS/RHEL)
   - macOS: `brew install openssl`
 
-- **nlohmann_json** (Optional): For CLIProfileProvider JSON support
-  - Windows: `vcpkg install nlohmann-json`
-  - Linux: `sudo apt-get install nlohmann-json3-dev`
-  - macOS: `brew install nlohmann-json`
+- **libcurl**: For HTTP requests
+  - Windows: Install via vcpkg (`vcpkg install curl`)
+  - Linux: `sudo apt-get install libcurl4-openssl-dev` (Ubuntu/Debian) or `sudo yum install libcurl-devel` (CentOS/RHEL)
+  - macOS: Preinstalled or `brew install curl`
+
+- **zlib**: For compression (required by curl, especially for static builds)
+  - Windows: Install via vcpkg (`vcpkg install zlib`)
+  - Linux: `sudo apt-get install zlib1g-dev` (Ubuntu/Debian) or `sudo yum install zlib-devel` (CentOS/RHEL)
+  - macOS: Preinstalled or `brew install zlib`
+
+- **uuid** (Linux only): For UUID generation
+  - Ubuntu/Debian: `sudo apt-get install uuid-dev`
+  - CentOS/RHEL: `sudo yum install libuuid-devel`
+  - macOS: Not required (uses CoreFoundation framework)
+  - Windows: Not required (uses Windows UUID API)
+
+**Quick Install (All Dependencies):**
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install -y libssl-dev libcurl4-openssl-dev zlib1g-dev uuid-dev
+
+# CentOS/RHEL
+sudo yum install -y openssl-devel libcurl-devel zlib-devel libuuid-devel
+
+# macOS (Homebrew)
+brew install openssl curl
+
+# Windows (vcpkg)
+vcpkg install openssl curl zlib
+```
 
 ## Installation
 
-### Linux
+### Linux/macOS
 
 ```bash
 git clone https://github.com/aliyun/credentials-cpp.git
@@ -50,86 +101,109 @@ sh scripts/install.sh
 
 ### Windows
 
-1. Run the following command to clone code from Github via git-bash:
+1. Run the following command to clone code from GitHub via git-bash:
 
-  ```bash
-  git clone https://github.com/aliyun/credentials-cpp.git
-  ```
+```bash
+git clone https://github.com/aliyun/credentials-cpp.git
+```
 
-2. Build Visual Studio solution
-  * Change directory to source code and make directory `cmake_build`
-  * Open CMake UI and
-    * `Browse Source` to open source code directory.
-    * `Browse build`  to open the created `cmake_build` directory
-    * click `configure`
-    * click `generate`, Generate VS solution
+2. Build using Visual Studio:
+   - Create a `cmake_build` directory in the root directory
+   - Open CMake GUI, then:
+     - Set `Browse Source` to the source code directory (`credentials-cpp`)
+     - Set `Browse Build` to the build directory (`cmake_build`)
+     - Click `Configure`
+     - Click `Generate` to generate the VS solution
 
-3. Build and Install C++ SDK
-  * Go to the cmake_build directory and open AlibabaCloud_credentials.sln with Visual Studio Solutions
-  * Select  `Release`
-  * Check INSTALL option from Build -> Configuration Manager
-  * Build->Build Solutions to build.
+3. Build and Install C++ SDK:
+   - Go to the `cmake_build` directory and open `alibabacloud_credential.sln` with Visual Studio
+   - Select `Release` configuration
+   - Check INSTALL option from Build -> Configuration Manager
+   - Build -> Build Solution
 
 ### Command Line Build (Cross-platform)
 
-To build without the CMake GUI, run the commands below from the repo root (`credentials-cpp` directory that contains `CMakeLists.txt`). Always pair `-S` with the source directory and `-B` with the build directory so CMake never falls back to `/`.
-
-- **macOS/Linux (bash/zsh):**
-
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_UNIT_TESTS=ON
+# Configure the project
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+# Build
 cmake --build build --config Release
+
+# Install (may require sudo on Linux/macOS)
+cmake --install build
 ```
 
-- **Windows PowerShell:** PowerShell does not treat `\` as a line continuation, so keep the command on one line or use the backtick (`` ` ``) continuation.
+**Build Options:**
 
-```powershell
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_UNIT_TESTS=ON
-cmake --build build --config Release
-```
-
-If you prefer multi-line PowerShell commands, write them as:
-
-```powershell
-cmake `
-  -S . `
-  -B build `
-  -DCMAKE_BUILD_TYPE=Release `
-  -DENABLE_UNIT_TESTS=ON
-```
-
-The first `cmake` command configures the project, while `cmake --build` compiles (passing `--config` is required on multi-config generators like Visual Studio).
+| Option | Default | Description |
+|--------|---------|-------------|
+| `BUILD_SHARED_LIBS` | ON | Build shared libraries |
+| `ENABLE_UNIT_TESTS` | OFF | Enable unit tests |
 
 ## Quick Examples
 
 Before you begin, you need to sign up for an Alibaba Cloud account and retrieve your [Credentials](https://usercenter.console.aliyun.com/#/manage/ak).
 
-### Default Credentials Provider Chain (Recommended)
+### Using Default Credentials Provider Chain (Recommended)
+
+```cpp
+#include <alibabacloud/credential/Credential.hpp>
+#include <iostream>
+
+using namespace AlibabaCloud::Credential;
+
+int main() {
+    // Use default credentials provider chain
+    Client client;
+    
+    // Get credentials
+    auto credential = client.getCredential();
+    std::cout << "AccessKeyId: " << credential.getAccessKeyId() << std::endl;
+    std::cout << "AccessKeySecret: " << credential.getAccessKeySecret() << std::endl;
+    std::cout << "Type: " << credential.getType() << std::endl;
+    
+    return 0;
+}
+```
+
+### Using Specific Credential Type
+
+```cpp
+#include <alibabacloud/credential/Credential.hpp>
+#include <iostream>
+
+using namespace AlibabaCloud::Credential;
+
+int main() {
+    // Create config with AccessKey
+    Models::Config config;
+    config.setType("access_key")
+          .setAccessKeyId("<your-access-key-id>")
+          .setAccessKeySecret("<your-access-key-secret>");
+    
+    // Create client with config
+    Client client(config);
+    
+    // Get credentials
+    auto credential = client.getCredential();
+    std::cout << "AccessKeyId: " << credential.getAccessKeyId() << std::endl;
+    
+    return 0;
+}
+```
+
+## Credential Types
+
+### Default Credentials Provider Chain
 
 If you do not specify a credential type, the client will search for credentials in the following order:
 
 1. **Environment Variables**: `ALIBABA_CLOUD_ACCESS_KEY_ID` and `ALIBABA_CLOUD_ACCESS_KEY_SECRET`
 2. **OIDC RAM Role**: Configured via environment variables `ALIBABA_CLOUD_ROLE_ARN`, `ALIBABA_CLOUD_OIDC_PROVIDER_ARN`, and `ALIBABA_CLOUD_OIDC_TOKEN_FILE`
 3. **Configuration File**: `~/.alibabacloud/credentials.ini` or `~/.alibabacloud/credentials.json`
-4. **ECS Instance RAM Role**: Retrieved via ECS Instance Metadata Service (IMDS)
+4. **ECS Instance RAM Role**: Retrieved via ECS Instance Metadata Service (IMDS), if `ALIBABA_CLOUD_ECS_METADATA` is set
 5. **Credentials URI**: Retrieved from URL specified by environment variable `ALIBABA_CLOUD_CREDENTIALS_URI`
-
-**Using Default Credentials Provider Chain (Best Practice):**
-
-```c++
-#include <alibabacloud/credential/Credential.hpp>
-
-using namespace AlibabaCloud::Credential;
-
-// Use default credentials provider chain without specifying any configuration
-Client client;
-
-// Get credentials
-auto credential = client.getCredential();
-printf("AccessKeyId: %s\n", credential.accessKeyId().c_str());
-printf("AccessKeySecret: %s\n", credential.accessKeySecret().c_str());
-printf("Type: %s\n", credential.type().c_str());
-```
 
 **Setting credentials via environment variables:**
 
@@ -147,9 +221,7 @@ set ALIBABA_CLOUD_ACCESS_KEY_ID=<your-access-key-id>
 set ALIBABA_CLOUD_ACCESS_KEY_SECRET=<your-access-key-secret>
 ```
 
-**Setting credentials via configuration file:**
-
-Create file `~/.alibabacloud/credentials.ini`:
+**Setting credentials via configuration file (`~/.alibabacloud/credentials.ini`):**
 
 ```ini
 [default]
@@ -158,225 +230,322 @@ access_key_id = <your-access-key-id>
 access_key_secret = <your-access-key-secret>
 ```
 
-Or create file `~/.alibabacloud/credentials.json` (requires nlohmann_json):
+### AccessKey
 
-```json
-{
-  "mode": "AK",
-  "accessKeyId": "<your-access-key-id>",
-  "accessKeySecret": "<your-access-key-secret>"
+Setup access_key credential through [User Information Management][ak]. It has full authority over the account, please keep it safe. Sometimes for security reasons, you cannot hand over a primary account AccessKey with full access to the developer of a project. You may create a sub-account [RAM Sub-account][ram], grant its [authorization][permissions], and use the AccessKey of RAM Sub-account.
+
+```cpp
+#include <alibabacloud/credential/Credential.hpp>
+
+using namespace AlibabaCloud::Credential;
+
+int main() {
+    Models::Config config;
+    config.setType("access_key")
+          .setAccessKeyId("<your-access-key-id>")
+          .setAccessKeySecret("<your-access-key-secret>");
+    
+    Client client(config);
+    
+    auto credential = client.getCredential();
+    printf("AccessKeyId: %s\n", credential.getAccessKeyId().c_str());
+    printf("AccessKeySecret: %s\n", credential.getAccessKeySecret().c_str());
+    
+    return 0;
 }
 ```
 
-### Specifying Credential Type
-
-If you need to explicitly specify a credential type, you can use the following methods:
-
-#### AccessKey
-
-Setup access_key credential through [User Information Management][ak], it have full authority over the account, please keep it safe. Sometimes for security reasons, you cannot hand over a primary account AccessKey with full access to the developer of a project. You may create a sub-account [RAM Sub-account][ram] , grant its [authorization][permissions]，and use the AccessKey of RAM Sub-account.
-
-```c++
-#include <alibabacloud.hpp>
-
-using namespace AlibabaCloud_Credential;
-
-map<string, string*> m;
-m.insert(pair<string, string*>("type", new string("access_key")));
-m.insert(pair<string, string*>("accessKeyId", new string("<AccessKeyId>")));
-m.insert(pair<string, string*>("accessKeySecret", new string("<AccessKeySecret>")));
-
-auto *config = new Config(m);
-Client client = Client(config);
-
-printf("%s", client.getAccessKeyId().c_str());
-printf("%s", client.getAccessKeySecret().c_str());
-```
-
-#### STS
+### STS
 
 Create a temporary security credential by applying Temporary Security Credentials (TSC) through the Security Token Service (STS).
 
-```c++
-#include <alibabacloud.hpp>
+```cpp
+#include <alibabacloud/credential/Credential.hpp>
 
-using namespace AlibabaCloud_Credential;
+using namespace AlibabaCloud::Credential;
 
-map<string, string*> m;
-m.insert(pair<string, string*>("type", new string("sts")));
-m.insert(pair<string, string*>("accessKeyId", new string("<AccessKeyId>")));
-m.insert(pair<string, string*>("accessKeySecret", new string("<AccessKeySecret>")));
-m.insert(pair<string, string*>("securityToken", new string("<SecurityToken>")));
-
-auto *config = new Config(m);
-Client client = Client(config);
-
-printf("%s", client.getAccessKeyId().c_str());
-printf("%s", client.getAccessKeySecret().c_str());
-printf("%s", client.getSecurityToken().c_str());
+int main() {
+    Models::Config config;
+    config.setType("sts")
+          .setAccessKeyId("<your-access-key-id>")
+          .setAccessKeySecret("<your-access-key-secret>")
+          .setSecurityToken("<your-security-token>");
+    
+    Client client(config);
+    
+    auto credential = client.getCredential();
+    printf("AccessKeyId: %s\n", credential.getAccessKeyId().c_str());
+    printf("AccessKeySecret: %s\n", credential.getAccessKeySecret().c_str());
+    printf("SecurityToken: %s\n", credential.getSecurityToken().c_str());
+    
+    return 0;
+}
 ```
 
-#### RamRoleArn
+### RamRoleArn
 
-By specifying [RAM Role][RAM Role], the credential will be able to automatically request maintenance of STS Token. If you want to limit the permissions([How to make a policy][policy]) of STS Token, you can assign value for `Policy`.
+By specifying [RAM Role][RAM Role], the credential will be able to automatically request maintenance of STS Token. If you want to limit the permissions ([How to make a policy][policy]) of STS Token, you can assign value for `Policy`.
 
-If the environment variable `ALIBABA_CLOUD_ECS_METADATA` is defined and not empty, the program will take the value of the environment variable as the role name and request `http://100.100.100.200/latest/meta-data/ram/security-credentials/` to get the temporary Security credentials are used as default credentials.
+```cpp
+#include <alibabacloud/credential/Credential.hpp>
 
-```c++
-#include <alibabacloud.hpp>
+using namespace AlibabaCloud::Credential;
 
-using namespace AlibabaCloud_Credential;
-
-map<string, string*> m;
-m.insert(pair<string, string*>("type", new string("ram_role_arn")));
-m.insert(pair<string, string*>("accessKeyId", new string("<AccessKeyId>")));
-m.insert(pair<string, string*>("accessKeySecret", new string("<AccessKeySecret>")));
-m.insert(pair<string, string*>("roleArn", new string("<RoleArn>")));
-m.insert(pair<string, string*>("roleSessionName", new string("<RoleSessionName>")));
-m.insert(pair<string, string*>("policy", new string("<Policy>")));
-
-auto *config = new Config(m);
-Client client = Client(config);
-
-printf("%s", client.getAccessKeyId().c_str());
-printf("%s", client.getAccessKeySecret().c_str());
-printf("%s", client.getRoleArn().c_str());
-printf("%s", client.getRoleSessionName().c_str());
-printf("%s", client.getPolicy().c_str());
+int main() {
+    Models::Config config;
+    config.setType("ram_role_arn")
+          .setAccessKeyId("<your-access-key-id>")
+          .setAccessKeySecret("<your-access-key-secret>")
+          .setRoleArn("<your-role-arn>")
+          .setRoleSessionName("<your-role-session-name>")
+          // Optional: set policy, duration, and region
+          .setPolicy("<your-policy>")
+          .setDurationSeconds(3600)
+          .setStsRegionId("cn-hangzhou");
+    
+    Client client(config);
+    
+    auto credential = client.getCredential();
+    printf("AccessKeyId: %s\n", credential.getAccessKeyId().c_str());
+    printf("AccessKeySecret: %s\n", credential.getAccessKeySecret().c_str());
+    printf("SecurityToken: %s\n", credential.getSecurityToken().c_str());
+    
+    return 0;
+}
 ```
 
-#### EcsRamRole
+### OIDCRoleArn
+
+By specifying OIDC Role, the credential will be able to automatically request maintenance of STS Token using OIDC Token.
+
+```cpp
+#include <alibabacloud/credential/Credential.hpp>
+
+using namespace AlibabaCloud::Credential;
+
+int main() {
+    Models::Config config;
+    config.setType("oidc_role_arn")
+          .setRoleArn("<your-role-arn>")
+          .setOidcProviderArn("<your-oidc-provider-arn>")
+          .setOidcTokenFilePath("<path-to-oidc-token-file>")
+          .setRoleSessionName("<your-role-session-name>")
+          // Optional: set policy, duration, and region
+          .setDurationSeconds(3600)
+          .setStsRegionId("cn-hangzhou");
+    
+    Client client(config);
+    
+    auto credential = client.getCredential();
+    printf("AccessKeyId: %s\n", credential.getAccessKeyId().c_str());
+    printf("AccessKeySecret: %s\n", credential.getAccessKeySecret().c_str());
+    printf("SecurityToken: %s\n", credential.getSecurityToken().c_str());
+    
+    return 0;
+}
+```
+
+**Or configure via environment variables:**
+
+```bash
+export ALIBABA_CLOUD_ROLE_ARN="<your-role-arn>"
+export ALIBABA_CLOUD_OIDC_PROVIDER_ARN="<your-oidc-provider-arn>"
+export ALIBABA_CLOUD_OIDC_TOKEN_FILE="<path-to-oidc-token-file>"
+export ALIBABA_CLOUD_ROLE_SESSION_NAME="<your-role-session-name>"
+```
+
+### EcsRamRole
 
 By specifying the role name, the credential will be able to automatically request maintenance of STS Token.
 
-By default, the Credentials tool accesses the metadata server of ECS in security hardening mode (IMDSv2). If an exception is thrown, the Credentials tool switches to the normal mode (IMDSv1). You can also configure the `disableIMDSv1` parameter or the `ALIBABA_CLOUD_IMDSV1_DISABLE` environment variable to specify the exception handling logic. Valid values:
+By default, the Credentials tool accesses the metadata server of ECS in security hardening mode (IMDSv2). If an exception is thrown, the Credentials tool switches to the normal mode (IMDSv1). You can configure the `disableIMDSv1` parameter or the `ALIBABA_CLOUD_IMDSV1_DISABLE` environment variable to specify the exception handling logic:
 
-- false (default): The Credentials tool continues to obtain the access credential in normal mode (IMDSv1).
-- true: The exception is thrown and the Credentials tool continues to obtain the access credential in security hardening mode.
+- `false` (default): The Credentials tool continues to obtain the access credential in normal mode (IMDSv1).
+- `true`: The exception is thrown and the Credentials tool continues to obtain the access credential in security hardening mode.
 
-The configurations for the metadata server determine whether the server supports the security hardening mode (IMDSv2).
+You can specify `ALIBABA_CLOUD_ECS_METADATA_DISABLED=true` to disable access from the Credentials tool to the metadata server of ECS.
 
-In addition, you can specify `ALIBABA_CLOUD_ECS_METADATA_DISABLED=true` to disable access from the Credentials tool to the metadata server of ECS.
+```cpp
+#include <alibabacloud/credential/Credential.hpp>
 
-```c++
-#include <alibabacloud.hpp>
+using namespace AlibabaCloud::Credential;
 
-using namespace AlibabaCloud_Credential;
-
-map<string, string*> m;
-m.insert(pair<string, string*>("type", new string("ecs_ram_role")));
-m.insert(pair<string, string*>("accessKeyId", new string("<AccessKeyId>")));
-m.insert(pair<string, string*>("accessKeySecret", new string("<AccessKeySecret>")));
-m.insert(pair<string, string*>("roleName", new string("<RoleName>")));
-// Optional. Specifies whether to disable IMDSv1. Default value: false
-// m.insert(pair<string, string*>("disableIMDSv1", new string("true")));
-
-auto *config = new Config(m);
-Client client = Client(config);
-
-printf("%s", client.getAccessKeyId().c_str());
-printf("%s", client.getAccessKeySecret().c_str());
-printf("%s", client.getRoleName().c_str());
+int main() {
+    Models::Config config;
+    config.setType("ecs_ram_role")
+          .setRoleName("<your-ecs-role-name>")
+          // Optional: disable IMDSv1 for enhanced security
+          .setDisableIMDSv1(false);
+    
+    Client client(config);
+    
+    auto credential = client.getCredential();
+    printf("AccessKeyId: %s\n", credential.getAccessKeyId().c_str());
+    printf("AccessKeySecret: %s\n", credential.getAccessKeySecret().c_str());
+    printf("SecurityToken: %s\n", credential.getSecurityToken().c_str());
+    
+    return 0;
+}
 ```
 
-#### RsaKeyPair
+**Or configure via environment variable:**
 
-By specifying the public key Id and the private key file, the credential will be able to automatically request maintenance of the AccessKey before sending the request. Only Japan station is supported.
-
-```c++
-#include <alibabacloud.hpp>
-
-using namespace AlibabaCloud_Credential;
-
-map<string, string*> m;
-m.insert(pair<string, string*>("type", new string("rsa_key_pair")));
-m.insert(pair<string, string*>("publicKeyId", new string("<PublicKeyId>")));
-m.insert(pair<string, string*>("privateKeyFile", new string("<PrivateKeyFile>")));
-
-auto *config = new Config(m);
-Client client = Client(config);
-
-printf("%s", client.getPublicKeyId().c_str());
-printf("%s", client.getPrivateKey().c_str());
+```bash
+export ALIBABA_CLOUD_ECS_METADATA="<your-ecs-role-name>"
 ```
 
-#### Bearer Token
+### URLCredential
+
+Get credentials by specifying a URL and the credential tool will automatically request this URL to obtain credentials.
+
+```cpp
+#include <alibabacloud/credential/Credential.hpp>
+
+using namespace AlibabaCloud::Credential;
+
+int main() {
+    Models::Config config;
+    config.setType("credentials_uri")
+          .setCredentialsURL("<your-credentials-url>");
+    
+    Client client(config);
+    
+    auto credential = client.getCredential();
+    printf("AccessKeyId: %s\n", credential.getAccessKeyId().c_str());
+    printf("AccessKeySecret: %s\n", credential.getAccessKeySecret().c_str());
+    printf("SecurityToken: %s\n", credential.getSecurityToken().c_str());
+    
+    return 0;
+}
+```
+
+**Or configure via environment variable:**
+
+```bash
+export ALIBABA_CLOUD_CREDENTIALS_URI="<your-credentials-url>"
+```
+
+The response from the URL must be in the following format:
+
+```json
+{
+  "Code": "Success",
+  "AccessKeyId": "<your-access-key-id>",
+  "AccessKeySecret": "<your-access-key-secret>",
+  "SecurityToken": "<your-security-token>",
+  "Expiration": "2023-12-31T12:00:00Z"
+}
+```
+
+### BearerToken
 
 If credential is required by the Cloud Call Centre (CCC), please apply for Bearer Token maintenance by yourself.
 
-```c++
-#include <alibabacloud.hpp>
+```cpp
+#include <alibabacloud/credential/Credential.hpp>
 
-using namespace AlibabaCloud_Credential;
+using namespace AlibabaCloud::Credential;
 
-map<string, string*> m;
-m.insert(pair<string, string*>("type", new string("bearer_token")));
-m.insert(pair<string, string*>("bearerToken", new string(new string("<BearerToken>"))));
-
-auto *config = new Config(m);
-Client client = Client(config);
-
-printf("%s", client.getBearerToken().c_str());
+int main() {
+    Models::Config config;
+    config.setType("bearer")
+          .setBearerToken("<your-bearer-token>");
+    
+    Client client(config);
+    
+    auto credential = client.getCredential();
+    printf("BearerToken: %s\n", credential.getBearerToken().c_str());
+    
+    return 0;
+}
 ```
 
-#### CloudSSO
+### RsaKeyPair
 
-Use Alibaba Cloud SSO managed role credentials.
+By specifying the public key ID and the private key file, the credential will be able to automatically request maintenance of the AccessKey. Only Japan station is supported.
 
-```c++
-#include <alibabacloud.hpp>
+```cpp
+#include <alibabacloud/credential/Credential.hpp>
 
-using namespace AlibabaCloud_Credential;
+using namespace AlibabaCloud::Credential;
 
-map<string, string*> m;
-m.insert(pair<string, string*>("type", new string("sso")));
-m.insert(pair<string, string*>("roleName", new string("<RoleName>")));
-m.insert(pair<string, string*>("regionId", new string("cn-hangzhou")));
-
-auto *config = new Config(m);
-Client client = Client(config);
-
-printf("%s", client.getAccessKeyId().c_str());
-printf("%s", client.getAccessKeySecret().c_str());
-printf("%s", client.getSecurityToken().c_str());
+int main() {
+    Models::Config config;
+    config.setType("rsa_key_pair")
+          .setPublicKeyId("<your-public-key-id>")
+          .setPrivateKeyFile("<path-to-private-key-file>");
+    
+    Client client(config);
+    
+    auto credential = client.getCredential();
+    printf("AccessKeyId: %s\n", credential.getAccessKeyId().c_str());
+    printf("AccessKeySecret: %s\n", credential.getAccessKeySecret().c_str());
+    
+    return 0;
+}
 ```
 
-#### OAuth
+## Configuration
 
-Use OAuth 2.0 protocol to obtain access credentials.
+### Config Parameters
 
-```c++
-#include <alibabacloud.hpp>
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `type` | string | Credential type |
+| `accessKeyId` | string | Access Key ID |
+| `accessKeySecret` | string | Access Key Secret |
+| `securityToken` | string | Security Token |
+| `bearerToken` | string | Bearer Token |
+| `roleArn` | string | RAM Role ARN |
+| `roleSessionName` | string | Role session name |
+| `policy` | string | Permission policy (JSON string) |
+| `durationSeconds` | int64_t | Session duration in seconds (default: 3600) |
+| `roleName` | string | ECS RAM role name |
+| `oidcProviderArn` | string | OIDC Provider ARN |
+| `oidcTokenFilePath` | string | Path to OIDC token file |
+| `publicKeyId` | string | RSA public key ID |
+| `privateKeyFile` | string | Path to RSA private key file |
+| `credentialsURL` | string | URL to fetch credentials |
+| `stsEndpoint` | string | STS endpoint (default: sts.aliyuncs.com) |
+| `stsRegionId` | string | STS region ID |
+| `regionId` | string | Region ID (default: cn-hangzhou) |
+| `timeout` | int64_t | Read timeout in milliseconds (default: 5000) |
+| `connectTimeout` | int64_t | Connection timeout in milliseconds (default: 10000) |
+| `disableIMDSv1` | bool | Disable IMDSv1 for ECS metadata (default: false) |
+| `enableVpc` | bool | Enable VPC endpoint (default: false) |
 
-using namespace AlibabaCloud_Credential;
+### Environment Variables
 
-map<string, string*> m;
-m.insert(pair<string, string*>("type", new string("oauth")));
-m.insert(pair<string, string*>("accessKeyId", new string("<ClientId>")));
-m.insert(pair<string, string*>("accessKeySecret", new string("<ClientSecret>")));
-m.insert(pair<string, string*>("stsEndpoint", new string("https://oauth.aliyuncs.com/v1/token")));
-m.insert(pair<string, string*>("regionId", new string("cn-hangzhou")));
+| Variable | Description |
+|----------|-------------|
+| `ALIBABA_CLOUD_ACCESS_KEY_ID` | Access Key ID |
+| `ALIBABA_CLOUD_ACCESS_KEY_SECRET` | Access Key Secret |
+| `ALIBABA_CLOUD_SECURITY_TOKEN` | Security Token |
+| `ALIBABA_CLOUD_ROLE_ARN` | RAM Role ARN |
+| `ALIBABA_CLOUD_OIDC_PROVIDER_ARN` | OIDC Provider ARN |
+| `ALIBABA_CLOUD_OIDC_TOKEN_FILE` | Path to OIDC token file |
+| `ALIBABA_CLOUD_ROLE_SESSION_NAME` | Role session name |
+| `ALIBABA_CLOUD_ECS_METADATA` | ECS RAM role name |
+| `ALIBABA_CLOUD_ECS_METADATA_DISABLED` | Disable ECS metadata service |
+| `ALIBABA_CLOUD_IMDSV1_DISABLE` | Disable IMDSv1 |
+| `ALIBABA_CLOUD_CREDENTIALS_URI` | URL to fetch credentials |
+| `ALIBABA_CLOUD_STS_REGION` | STS region |
+| `ALIBABA_CLOUD_VPC_ENDPOINT_ENABLED` | Enable VPC endpoint |
 
-auto *config = new Config(m);
-Client client = Client(config);
+## Issues
 
-printf("%s", client.getBearerToken().c_str());
-```
+[Submit Issue](https://github.com/aliyun/credentials-cpp/issues/new/choose), Problems that do not meet the guidelines may be closed immediately.
 
-## Issue
-
-[Submit Issue](https://github.com/aliyun/credentials-cpp/issues/new/choose), Problems that do not meet the guidelines may close immediately.
-
-## Release notes
+## Release Notes
 
 Detailed changes for each version are recorded in the [Release Notes](/CHANGELOG.md).
 
 ## Related
 
-* [OpenAPI Developer Portal][open-api]
-* [Latest Release][latest-release]
-* [AlibabaCloud Console System][console]
-* [Alibaba Cloud Home Page][aliyun]
+- [OpenAPI Developer Portal][open-api]
+- [Latest Release][latest-release]
+- [Alibaba Cloud Console][console]
+- [Alibaba Cloud Home Page][aliyun]
 
 ## License
 
@@ -388,3 +557,8 @@ Copyright (c) 2009-present, Alibaba Cloud All rights reserved.
 [latest-release]: https://github.com/aliyun/credentials-cpp/releases
 [console]: https://home.console.aliyun.com
 [aliyun]: https://www.aliyun.com
+[ak]: https://usercenter.console.aliyun.com/#/manage/ak
+[ram]: https://ram.console.aliyun.com/users
+[permissions]: https://ram.console.aliyun.com/permissions
+[RAM Role]: https://ram.console.aliyun.com/#/role/list
+[policy]: https://www.alibabacloud.com/help/doc-detail/28664.htm

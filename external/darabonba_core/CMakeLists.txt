@@ -1,12 +1,28 @@
-find_package(darabonba_core QUIET)
+# Always use FetchContent for consistency
+include(FetchContent)
 
-if(darabonba_core_FOUND)
-  message(STATUS "Found darabonba_core version ${darabonba_core_VERSION}")
+# Try to use local source first (for development)
+set(_LOCAL_TEA_CPP "${CMAKE_CURRENT_LIST_DIR}/../../../tea-cpp")
+if(EXISTS "${_LOCAL_TEA_CPP}/CMakeLists.txt")
+  message(STATUS "Using local tea-cpp source for darabonba_core")
+  FetchContent_Declare(
+    _darabonba_core
+    SOURCE_DIR "${_LOCAL_TEA_CPP}"
+    CMAKE_ARGS -DENABLE_UNIT_TESTS:BOOL="0"
+  )
 else()
-  message(STATUS "darabonba_core could not be located, Building darabonba_core instead.")
-  include(FetchContent)
-
-  # Prepare CMAKE_ARGS for darabonba_core
+  # Try find_package first, then download from Git
+  find_package(darabonba_core QUIET)
+  
+  if(darabonba_core_FOUND)
+    message(STATUS "Found darabonba_core version ${darabonba_core_VERSION}")
+    # Mark as found so parent CMakeLists can link it
+    set(DARABONBA_CORE_FOUND TRUE PARENT_SCOPE)
+    return()  # Exit early, no need to FetchContent
+  else()
+    message(STATUS "darabonba_core could not be located, Building darabonba_core instead.")
+    # Download from Git
+    # Prepare CMAKE_ARGS for darabonba_core
   set(_darabonba_core_CMAKE_ARGS
     -DENABLE_UNIT_TESTS:BOOL="0")
   
@@ -25,11 +41,20 @@ else()
       -DCMAKE_C_FLAGS_DEBUG:STRING="/MDd")
   endif()
 
-  FetchContent_Declare(
-    _darabonba_core
-    GIT_REPOSITORY https://github.com/aliyun/tea-cpp.git
-    GIT_TAG master
-    CMAKE_ARGS ${_darabonba_core_CMAKE_ARGS})
+  # Try to use local source first if available
+  if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/../../../tea-cpp/CMakeLists.txt")
+    message(STATUS "Using local tea-cpp source")
+    FetchContent_Declare(
+      _darabonba_core
+      SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../tea-cpp"
+      CMAKE_ARGS ${_darabonba_core_CMAKE_ARGS})
+  else()
+    FetchContent_Declare(
+      _darabonba_core
+      GIT_REPOSITORY https://github.com/TsinghuaDream/tea-cpp.git
+      GIT_TAG master
+      CMAKE_ARGS ${_darabonba_core_CMAKE_ARGS})
+  endif()
 
   set(ENABLE_UNIT_TESTS OFF)
   FetchContent_MakeAvailable(_darabonba_core)
@@ -103,4 +128,5 @@ else()
   
   # Make the include directory available to parent scope for tests
   set(DARABONBA_CORE_INCLUDE_DIR "${_darabonba_core_SOURCE_DIR}/include" PARENT_SCOPE)
-endif()
+  endif() # end of else (darabonba_core_FOUND)
+endif() # end of else (local tea-cpp check)

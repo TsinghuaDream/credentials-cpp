@@ -280,6 +280,13 @@ if (ENABLE_UNIT_TESTS)
     if(WIN32)
         target_link_libraries(tests_AlibabaCloud_credential PRIVATE ws2_32)
         
+        # Copy alibabacloud_credential.dll to the executable directory for Windows
+        add_custom_command(TARGET tests_AlibabaCloud_credential POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:${PROJECT_NAME}>
+            $<TARGET_FILE_DIR:tests_AlibabaCloud_credential>
+            COMMENT "Copying ${PROJECT_NAME}.dll to output directory")
+        
         # Copy darabonba_core.dll to the executable directory for Windows
         add_custom_command(TARGET tests_AlibabaCloud_credential POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -288,25 +295,36 @@ if (ENABLE_UNIT_TESTS)
             COMMENT "Copying darabonba_core.dll to output directory")
         
         # Copy vcpkg DLLs (libcurl, OpenSSL, etc.) to output directory
+        # Try multiple possible vcpkg paths
         if(DEFINED VCPKG_INSTALLED_DIR)
             set(_vcpkg_bin_dir "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin")
-            if(EXISTS "${_vcpkg_bin_dir}")
-                file(GLOB _vcpkg_dlls 
-                    "${_vcpkg_bin_dir}/libcurl*.dll"
-                    "${_vcpkg_bin_dir}/libcrypto*.dll"
-                    "${_vcpkg_bin_dir}/libssl*.dll"
-                    "${_vcpkg_bin_dir}/zlib*.dll"
-                    "${_vcpkg_bin_dir}/nghttp2*.dll"
-                    "${_vcpkg_bin_dir}/brotli*.dll"
-                    "${_vcpkg_bin_dir}/zstd*.dll")
-                foreach(_dll ${_vcpkg_dlls})
-                    add_custom_command(TARGET tests_AlibabaCloud_credential POST_BUILD
-                        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                        "${_dll}"
-                        $<TARGET_FILE_DIR:tests_AlibabaCloud_credential>
-                        COMMENT "Copying ${_dll} to output directory")
-                endforeach()
-            endif()
+        elseif(DEFINED ENV{VCPKG_INSTALLATION_ROOT})
+            set(_vcpkg_bin_dir "$ENV{VCPKG_INSTALLATION_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin")
+        elseif(DEFINED CMAKE_TOOLCHAIN_FILE)
+            get_filename_component(_vcpkg_root "${CMAKE_TOOLCHAIN_FILE}" DIRECTORY)
+            get_filename_component(_vcpkg_root "${_vcpkg_root}" DIRECTORY)
+            set(_vcpkg_bin_dir "${_vcpkg_root}/installed/${VCPKG_TARGET_TRIPLET}/bin")
+        endif()
+        
+        if(DEFINED _vcpkg_bin_dir AND EXISTS "${_vcpkg_bin_dir}")
+            message(STATUS "Copying DLLs from vcpkg: ${_vcpkg_bin_dir}")
+            file(GLOB _vcpkg_dlls 
+                "${_vcpkg_bin_dir}/libcurl*.dll"
+                "${_vcpkg_bin_dir}/libcrypto*.dll"
+                "${_vcpkg_bin_dir}/libssl*.dll"
+                "${_vcpkg_bin_dir}/zlib*.dll"
+                "${_vcpkg_bin_dir}/nghttp2*.dll"
+                "${_vcpkg_bin_dir}/brotli*.dll"
+                "${_vcpkg_bin_dir}/zstd*.dll")
+            foreach(_dll ${_vcpkg_dlls})
+                add_custom_command(TARGET tests_AlibabaCloud_credential POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${_dll}"
+                    $<TARGET_FILE_DIR:tests_AlibabaCloud_credential>
+                    COMMENT "Copying ${_dll} to output directory")
+            endforeach()
+        else()
+            message(WARNING "vcpkg bin directory not found, DLLs may need to be copied manually")
         endif()
     elseif(UNIX AND NOT APPLE)
         target_link_libraries(tests_AlibabaCloud_credential PRIVATE pthread dl)

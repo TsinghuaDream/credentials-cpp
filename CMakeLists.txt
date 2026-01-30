@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.13)
 
 project(alibabacloud_credential VERSION "0.1.0")
 
@@ -75,30 +75,21 @@ set(SOURCE_FILES
 
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
 
-# Ensure main library uses dynamic runtime library on Windows
+# Ensure main library uses dynamic runtime library on Windows (CMake 3.13+)
 if(MSVC)
-    # MSVC_RUNTIME_LIBRARY property requires CMake 3.15+
-    if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.15")
-        set_target_properties(${PROJECT_NAME} PROPERTIES
-            MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
-    endif()
-    
-    # Explicitly exclude static C and C++ runtime libraries to prevent conflicts
-    if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.13")
-        target_link_options(${PROJECT_NAME} PRIVATE
-            /NODEFAULTLIB:libcmt
-            /NODEFAULTLIB:libcpmt
-            "$<$<CONFIG:Debug>:/NODEFAULTLIB:libcmtd>"
-            "$<$<CONFIG:Debug>:/NODEFAULTLIB:libcpmtd>")
-    else()
-        # For older CMake versions, use LINK_FLAGS
-        get_target_property(_current_link_flags ${PROJECT_NAME} LINK_FLAGS)
-        if(NOT _current_link_flags OR _current_link_flags STREQUAL "NOTFOUND")
-            set(_current_link_flags "")
-        endif()
-        set_target_properties(${PROJECT_NAME} PROPERTIES
-            LINK_FLAGS "${_current_link_flags} /NODEFAULTLIB:libcmt /NODEFAULTLIB:libcpmt")
-    endif()
+  # Force /MD flag using generator expressions
+  target_compile_options(${PROJECT_NAME} PRIVATE
+    "$<$<CONFIG:Release>:/MD>"
+    "$<$<CONFIG:MinSizeRel>:/MD>"
+    "$<$<CONFIG:RelWithDebInfo>:/MD>"
+    "$<$<CONFIG:Debug>:/MDd>")
+  
+  # Explicitly exclude static C++ runtime libraries (CMake 3.13+)
+  target_link_options(${PROJECT_NAME} PRIVATE
+    /NODEFAULTLIB:libcmt
+    /NODEFAULTLIB:libcpmt
+    "$<$<CONFIG:Debug>:/NODEFAULTLIB:libcmtd>"
+    "$<$<CONFIG:Debug>:/NODEFAULTLIB:libcpmtd>")
 endif()
 
 target_include_directories(${PROJECT_NAME}
@@ -123,19 +114,14 @@ if(WIN32)
 endif()
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< External set up >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> #
-# Ensure GoogleTest uses the shared CRT (MD) to match the project
-# This must be set BEFORE googletest is configured
+# Ensure GoogleTest uses the shared CRT (MD) to avoid linker conflicts
 if(MSVC AND ENABLE_UNIT_TESTS)
-    # Force GoogleTest to use shared CRT - must be set before add_subdirectory
-    set(gtest_force_shared_crt ON CACHE BOOL "Force GoogleTest to use shared CRT" FORCE)
-    
-    # Ensure this propagates to subdirectories
-    set(CMAKE_POLICY_DEFAULT_CMP0091 NEW)
-    
-    # Set global MSVC runtime library for all targets in subdirectories
-    if(POLICY CMP0091)
-        cmake_policy(SET CMP0091 NEW)
-    endif()
+  set(gtest_force_shared_crt ON CACHE BOOL "Force GoogleTest to use shared CRT" FORCE)
+  set(CMAKE_POLICY_DEFAULT_CMP0091 NEW)
+  
+  if(POLICY CMP0091)
+    cmake_policy(SET CMP0091 NEW)
+  endif()
 endif()
 add_subdirectory(external)
 
@@ -204,135 +190,10 @@ elseif(APPLE)
     # target_link_libraries(${PROJECT_NAME} PRIVATE "-framework CoreFoundation")
 endif()
 
-if (ENABLE_UNIT_TESTS)
-    enable_testing()
-    
-    # Get darabonba_core source directory
-    include(FetchContent)
-    FetchContent_GetProperties(_darabonba_core)
-    if(NOT _darabonba_core_POPULATED)
-        FetchContent_Populate(_darabonba_core)
-    endif()
-    
-    set(TEST_SOURCE_FILES
-        tests/test_basic.cpp
-        tests/test_config_model.cpp
-        tests/test_providers.cpp
-        tests/test_environment_default.cpp
-        tests/test_url_provider.cpp
-        tests/test_profile_provider.cpp
-        tests/test_client.cpp
-        tests/test_auth_util.cpp
-        tests/test_cli_profile_provider.cpp
-        tests/test_refreshable_provider.cpp
-        tests/test_edge_cases.cpp
-        tests/test_integration_scenarios.cpp
-        tests/test_ecs_ram_role_provider.cpp
-        tests/test_env_priority.cpp)
-    
-    add_executable(tests_AlibabaCloud_credential ${TEST_SOURCE_FILES})
-    
-    # Ensure test executable uses dynamic runtime library on Windows
-    if(MSVC)
-        # MSVC_RUNTIME_LIBRARY property requires CMake 3.15+
-        if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.15")
-            set_target_properties(tests_AlibabaCloud_credential PROPERTIES
-                MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
-        endif()
-        
-        # Explicitly exclude static C++ runtime libraries to prevent conflicts
-        # libcmt.lib = static C runtime (Release)
-        # libcpmt.lib = static C++ runtime (Release)
-        # libcmtd.lib = static C runtime (Debug)
-        # libcpmtd.lib = static C++ runtime (Debug)
-        if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.13")
-            target_link_options(tests_AlibabaCloud_credential PRIVATE
-                /NODEFAULTLIB:libcmt
-                /NODEFAULTLIB:libcpmt
-                "$<$<CONFIG:Debug>:/NODEFAULTLIB:libcmtd>"
-                "$<$<CONFIG:Debug>:/NODEFAULTLIB:libcpmtd>")
-        else()
-            # For older CMake versions, use LINK_FLAGS
-            get_target_property(_current_link_flags tests_AlibabaCloud_credential LINK_FLAGS)
-            if(NOT _current_link_flags OR _current_link_flags STREQUAL "NOTFOUND")
-                set(_current_link_flags "")
-            endif()
-            set_target_properties(tests_AlibabaCloud_credential PROPERTIES
-                LINK_FLAGS "${_current_link_flags} /NODEFAULTLIB:libcmt /NODEFAULTLIB:libcpmt")
-        endif()
-    endif()
-    
-    target_include_directories(tests_AlibabaCloud_credential
-            PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/include
-            ${_darabonba_core_SOURCE_DIR}/include)
-    
-    target_link_libraries(tests_AlibabaCloud_credential
-            PRIVATE
-            ${PROJECT_NAME}
-            gtest
-            gtest_main
-            darabonba_core
-            OpenSSL::SSL
-            OpenSSL::Crypto)
-    
-    # Platform-specific test link libraries
-    if(WIN32)
-        target_link_libraries(tests_AlibabaCloud_credential PRIVATE ws2_32)
-        
-        # Copy alibabacloud_credential.dll to the executable directory for Windows
-        add_custom_command(TARGET tests_AlibabaCloud_credential POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:${PROJECT_NAME}>
-            $<TARGET_FILE_DIR:tests_AlibabaCloud_credential>
-            COMMENT "Copying ${PROJECT_NAME}.dll to output directory")
-        
-        # Copy darabonba_core.dll to the executable directory for Windows
-        add_custom_command(TARGET tests_AlibabaCloud_credential POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:darabonba_core>
-            $<TARGET_FILE_DIR:tests_AlibabaCloud_credential>
-            COMMENT "Copying darabonba_core.dll to output directory")
-        
-        # Copy vcpkg DLLs (libcurl, OpenSSL, etc.) to output directory
-        # Try multiple possible vcpkg paths
-        if(DEFINED VCPKG_INSTALLED_DIR)
-            set(_vcpkg_bin_dir "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin")
-        elseif(DEFINED ENV{VCPKG_INSTALLATION_ROOT})
-            set(_vcpkg_bin_dir "$ENV{VCPKG_INSTALLATION_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin")
-        elseif(DEFINED CMAKE_TOOLCHAIN_FILE)
-            get_filename_component(_vcpkg_root "${CMAKE_TOOLCHAIN_FILE}" DIRECTORY)
-            get_filename_component(_vcpkg_root "${_vcpkg_root}" DIRECTORY)
-            set(_vcpkg_bin_dir "${_vcpkg_root}/installed/${VCPKG_TARGET_TRIPLET}/bin")
-        endif()
-        
-        if(DEFINED _vcpkg_bin_dir AND EXISTS "${_vcpkg_bin_dir}")
-            message(STATUS "Copying DLLs from vcpkg: ${_vcpkg_bin_dir}")
-            file(GLOB _vcpkg_dlls 
-                "${_vcpkg_bin_dir}/libcurl*.dll"
-                "${_vcpkg_bin_dir}/libcrypto*.dll"
-                "${_vcpkg_bin_dir}/libssl*.dll"
-                "${_vcpkg_bin_dir}/zlib*.dll"
-                "${_vcpkg_bin_dir}/nghttp2*.dll"
-                "${_vcpkg_bin_dir}/brotli*.dll"
-                "${_vcpkg_bin_dir}/zstd*.dll")
-            foreach(_dll ${_vcpkg_dlls})
-                add_custom_command(TARGET tests_AlibabaCloud_credential POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    "${_dll}"
-                    $<TARGET_FILE_DIR:tests_AlibabaCloud_credential>
-                    COMMENT "Copying ${_dll} to output directory")
-            endforeach()
-        else()
-            message(WARNING "vcpkg bin directory not found, DLLs may need to be copied manually")
-        endif()
-    elseif(UNIX AND NOT APPLE)
-        target_link_libraries(tests_AlibabaCloud_credential PRIVATE pthread dl)
-    endif()
-    
-    add_test(NAME google_test
-            COMMAND $<TARGET_FILE:tests_AlibabaCloud_credential>)
-endif ()
+if(ENABLE_UNIT_TESTS)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Install set up >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> #
 message(STATUS "${PROJECT_NAME} : Project will be installed to ${CMAKE_INSTALL_PREFIX}")

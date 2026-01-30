@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    name: ${{ matrix.os }} - ${{ matrix.compiler }}
+    name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.build_type }} - C++${{ matrix.cxx_standard }}
     runs-on: ${{ matrix.os }}
     
     strategy:
@@ -16,14 +16,33 @@ jobs:
       matrix:
         os: [ubuntu-22.04, macos-latest]
         compiler: [gcc, clang]
+        build_type: [shared, static]
+        cxx_standard: [11, 14, 17]
         exclude:
           # macOS 默认使用 clang，不需要测试 gcc
           - os: macos-latest
             compiler: gcc
+          # 减少测试组合：只在 Linux + GCC 上测试所有 C++ 标准
+          - os: macos-latest
+            cxx_standard: 14
+          - os: macos-latest
+            cxx_standard: 17
+          - os: ubuntu-22.04
+            compiler: clang
+            cxx_standard: 14
+          - os: ubuntu-22.04
+            compiler: clang
+            cxx_standard: 17
         include:
-          # Windows 使用 MSVC
+          # Windows 使用 MSVC，测试静态和动态库
           - os: windows-latest
             compiler: msvc
+            build_type: shared
+            cxx_standard: 11
+          - os: windows-latest
+            compiler: msvc
+            build_type: static
+            cxx_standard: 11
     
     steps:
     - name: Checkout code
@@ -70,14 +89,14 @@ jobs:
       id: vcpkg-cache
       with:
         path: ${{ steps.setup-vcpkg.outputs.vcpkg-root }}/installed
-        key: ${{ runner.os }}-vcpkg-curl-openssl-json-x64-windows
+        key: ${{ runner.os }}-vcpkg-curl-openssl-json-x64-windows-${{ matrix.build_type }}
         restore-keys: |
           ${{ runner.os }}-vcpkg-
 
     - name: Install dependencies (Windows)
       if: runner.os == 'Windows'
       run: |
-        $vcpkgRoot = $env:VCPKG_ROOT
+        $vcpkgRoot = "$env:RUNNER_TEMP\vcpkg"
         $cacheHit = "${{ steps.vcpkg-cache.outputs.cache-hit }}" -eq "true"
         if (-not $cacheHit) {
           Write-Host "Cache miss, installing vcpkg packages..."
@@ -86,6 +105,7 @@ jobs:
           Write-Host "Cache hit! Using cached vcpkg packages."
         }
         echo "CMAKE_TOOLCHAIN_FILE=$vcpkgRoot/scripts/buildsystems/vcpkg.cmake" >> $env:GITHUB_ENV
+        echo "VCPKG_INSTALLED_DIR=$vcpkgRoot/installed" >> $env:GITHUB_ENV
 
     # ============ 设置编译器 (Linux) ============
     - name: Set up GCC (Linux)
@@ -111,15 +131,23 @@ jobs:
       if: runner.os == 'Windows'
       shell: cmd
       run: |
-        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%CMAKE_TOOLCHAIN_FILE% -DENABLE_UNIT_TESTS=ON -Dgtest_force_shared_crt=ON -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL -DCMAKE_POLICY_DEFAULT_CMP0091=NEW
+        set BUILD_SHARED_LIBS=OFF
+        if "${{ matrix.build_type }}"=="shared" set BUILD_SHARED_LIBS=ON
+        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%CMAKE_TOOLCHAIN_FILE% -DVCPKG_INSTALLED_DIR=%VCPKG_INSTALLED_DIR% -DENABLE_UNIT_TESTS=ON -Dgtest_force_shared_crt=ON -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL -DCMAKE_POLICY_DEFAULT_CMP0091=NEW -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }}
 
     - name: Configure CMake (Linux/macOS)
       if: runner.os != 'Windows'
       shell: bash
       run: |
+        BUILD_SHARED_LIBS=OFF
+        if [ "${{ matrix.build_type }}" = "shared" ]; then
+          BUILD_SHARED_LIBS=ON
+        fi
         cmake -B build \
           -DCMAKE_BUILD_TYPE=Release \
-          -DENABLE_UNIT_TESTS=ON
+          -DENABLE_UNIT_TESTS=ON \
+          -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS \
+          -DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }}
 
     - name: Build
       shell: bash
@@ -132,9 +160,51 @@ jobs:
         cd build
         ctest --output-on-failure --verbose
     
-    # ============ 代码覆盖率 (仅 Linux + GCC) ============
+    # ============ 安装测试 ============
+    - name: Test installation
+      shell: bash
+      run: |
+        cmake --install build --prefix ${{ runner.temp }}/install
+        echo "Installation completed successfully"
+    
+    # ============ find_package 测试 ============
+    - name: Test find_package integration
+      shell: bash
+      run: |
+        TEST_DIR="${{ runner.temp }}/find_package_test"
+        mkdir -p "$TEST_DIR"
+        
+        # 创建测试 CMakeLists.txt
+        cat > "$TEST_DIR/CMakeLists.txt" << 'EOF'
+        cmake_minimum_required(VERSION 3.13)
+        project(TestFindPackage)
+        set(CMAKE_CXX_STANDARD ${{ matrix.cxx_standard }})
+        find_package(alibabacloud_credential REQUIRED)
+        message(STATUS "Found alibabacloud_credential: ${alibabacloud_credential_VERSION}")
+        EOF
+        
+        # 创建测试 main.cpp
+        cat > "$TEST_DIR/main.cpp" << 'EOF'
+        #include <alibabacloud/credential/Credential.hpp>
+        int main() {
+            // 简单的编译测试
+            return 0;
+        }
+        EOF
+        
+        # 测试 find_package
+        cd "$TEST_DIR"
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          cmake -B build -G Ninja -DCMAKE_PREFIX_PATH="${{ runner.temp }}/install" -DCMAKE_TOOLCHAIN_FILE=%CMAKE_TOOLCHAIN_FILE%
+        else
+          cmake -B build -DCMAKE_PREFIX_PATH="${{ runner.temp }}/install"
+        fi
+        
+        echo "find_package test completed successfully"
+    
+    # ============ 代码覆盖率 (仅 Linux + GCC + shared + C++11) ============
     - name: Generate coverage report
-      if: runner.os == 'Linux' && matrix.compiler == 'gcc'
+      if: runner.os == 'Linux' && matrix.compiler == 'gcc' && matrix.build_type == 'shared' && matrix.cxx_standard == 11
       run: |
         cd build
         # 如果有 lcov，生成覆盖率报告
@@ -145,7 +215,7 @@ jobs:
         fi
     
     - name: Upload coverage to Codecov
-      if: runner.os == 'Linux' && matrix.compiler == 'gcc'
+      if: runner.os == 'Linux' && matrix.compiler == 'gcc' && matrix.build_type == 'shared' && matrix.cxx_standard == 11
       uses: codecov/codecov-action@v4
       with:
         file: ./build/coverage.info

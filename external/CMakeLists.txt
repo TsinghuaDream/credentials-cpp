@@ -7,6 +7,9 @@ endif()
 
 add_subdirectory(darabonba_core)
 
-if (ENABLE_UNIT_TESTS)
-    add_subdirectory(googletest)
+if(ENABLE_UNIT_TESTS)
+  # Suppress deprecation warnings from GoogleTest v1.12.1 (last C++11 compatible version)
+  set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
+  add_subdirectory(googletest)
+  set(CMAKE_WARN_DEPRECATED ON CACHE BOOL "" FORCE)
 endif()

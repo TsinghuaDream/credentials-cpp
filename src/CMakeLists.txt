@@ -16,12 +16,14 @@ target_include_directories(${PROJECT_NAME}
 # 4. Link dependencies 
 # We assume the root CMakeLists.txt has already found these packages.
 # Using Targets (::) ensures that include directories and compile definitions are inherited.
+# Note: For static linking, order matters! Libraries that depend on others must come first.
+# CURL depends on OpenSSL, so CURL must be listed before OpenSSL.
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
+    darabonba_core
+    CURL::libcurl
     OpenSSL::SSL
     OpenSSL::Crypto
-    CURL::libcurl
-    darabonba_core
 )
 
 # 5. Conditional dependencies for static builds
@@ -30,6 +32,11 @@ if(NOT BUILD_SHARED_LIBS)
   find_package(ZLIB QUIET)
   if(TARGET ZLIB::ZLIB)
     target_link_libraries(${PROJECT_NAME} PUBLIC ZLIB::ZLIB)
+  endif()
+  
+  # On Linux, static linking may need additional system libraries
+  if(UNIX AND NOT APPLE)
+    target_link_libraries(${PROJECT_NAME} PUBLIC dl pthread)
   endif()
 endif()
 

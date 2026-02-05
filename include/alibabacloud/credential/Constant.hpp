@@ -4,6 +4,13 @@
 #include <string>
 #include <alibabacloud/credential/Export.hpp>
 
+// Disable C4251 warning for std::string members in DLL-exported classes
+// This is safe when both DLL and client use the same compiler and runtime
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4251)
+#endif
+
 namespace AlibabaCloud {
 namespace Credential {
 class ALIBABACLOUD_CREDENTIAL_EXPORT Constant {
@@ -60,5 +67,9 @@ public:
 };
 } // namespace Credential
 } // namespace AlibabaCloud
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif

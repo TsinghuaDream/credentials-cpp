@@ -1,241 +1,189 @@
-name: CI
+name: C++ CI
+
+permissions:
+  contents: read
 
 on:
   push:
-    branches: [ master, main, develop ]
+    branches: [ "master", "main" ]
   pull_request:
-    branches: [ master, main, develop ]
+    branches: [ "master", "main" ]
 
 jobs:
-  build-and-test:
-    name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.build_type }} - C++${{ matrix.cxx_standard }}
+  build:
+    name: ${{ matrix.os }} - C++${{ matrix.cxx_standard }}
     runs-on: ${{ matrix.os }}
-    
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-latest]
-        compiler: [gcc, clang]
-        build_type: [shared, static]
-        cxx_standard: [11, 14, 17]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        cxx_standard: [11, 14, 17, 20]
+        # Restrict combinations to save time
         exclude:
-          # macOS 默认使用 clang，不需要测试 gcc
-          - os: macos-latest
-            compiler: gcc
-          # 减少测试组合：只在 Linux + GCC 上测试所有 C++ 标准
           - os: macos-latest
             cxx_standard: 14
           - os: macos-latest
             cxx_standard: 17
-          - os: ubuntu-22.04
-            compiler: clang
+          - os: macos-latest
+            cxx_standard: 20
+          - os: windows-latest
             cxx_standard: 14
-          - os: ubuntu-22.04
-            compiler: clang
+          - os: windows-latest
             cxx_standard: 17
-        include:
-          # Windows 使用 MSVC，测试静态和动态库
           - os: windows-latest
-            compiler: msvc
-            build_type: shared
-            cxx_standard: 11
-          - os: windows-latest
-            compiler: msvc
-            build_type: static
-            cxx_standard: 11
-    
+            cxx_standard: 20
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    
-    # ============ Linux 依赖安装 ============
+    - uses: actions/checkout@v4
+
     - name: Install dependencies (Linux)
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install -y \
-          cmake \
-          libssl-dev \
-          libcurl4-openssl-dev \
-          nlohmann-json3-dev \
-          uuid-dev \
-          lcov
-    
-    # ============ macOS 依赖安装 ============
+        sudo apt-get install -y libcurl4-openssl-dev libssl-dev uuid-dev
+
     - name: Install dependencies (macOS)
       if: runner.os == 'macOS'
       run: |
-        brew install \
-          cmake \
-          openssl \
-          nlohmann-json
-    
-    # ============ Windows 依赖安装 ============
-    - name: Setup vcpkg (Windows)
-      if: runner.os == 'Windows'
-      id: setup-vcpkg
-      run: |
-        $vcpkgRoot = "$env:RUNNER_TEMP\vcpkg"
-        git clone https://github.com/Microsoft/vcpkg.git $vcpkgRoot
-        & "$vcpkgRoot\bootstrap-vcpkg.bat"
-        echo "VCPKG_ROOT=$vcpkgRoot" >> $env:GITHUB_ENV
-        echo "vcpkg-root=$vcpkgRoot" >> $env:GITHUB_OUTPUT
+        brew install openssl curl
+        echo "OPENSSL_ROOT_DIR=$(brew --prefix openssl)" >> $GITHUB_ENV
 
-    - name: Cache vcpkg
+    - name: Cache vcpkg packages (Windows)
       if: runner.os == 'Windows'
       uses: actions/cache@v4
-      id: vcpkg-cache
       with:
-        path: ${{ steps.setup-vcpkg.outputs.vcpkg-root }}/installed
-        key: ${{ runner.os }}-vcpkg-curl-openssl-json-x64-windows-${{ matrix.build_type }}
+        path: C:/vcpkg/installed
+        key: ${{ runner.os }}-vcpkg-${{ matrix.cxx_standard }}-curl-openssl
         restore-keys: |
+          ${{ runner.os }}-vcpkg-${{ matrix.cxx_standard }}-
           ${{ runner.os }}-vcpkg-
 
-    - name: Install dependencies (Windows)
+    - name: Setup vcpkg (Windows)
       if: runner.os == 'Windows'
-      run: |
-        $vcpkgRoot = "$env:RUNNER_TEMP\vcpkg"
-        $cacheHit = "${{ steps.vcpkg-cache.outputs.cache-hit }}" -eq "true"
-        if (-not $cacheHit) {
-          Write-Host "Cache miss, installing vcpkg packages..."
-          & "$vcpkgRoot\vcpkg.exe" install curl:x64-windows openssl:x64-windows nlohmann-json:x64-windows
-        } else {
-          Write-Host "Cache hit! Using cached vcpkg packages."
-        }
-        echo "CMAKE_TOOLCHAIN_FILE=$vcpkgRoot/scripts/buildsystems/vcpkg.cmake" >> $env:GITHUB_ENV
-        echo "VCPKG_INSTALLED_DIR=$vcpkgRoot/installed" >> $env:GITHUB_ENV
-
-    # ============ 设置编译器 (Linux) ============
-    - name: Set up GCC (Linux)
-      if: runner.os == 'Linux' && matrix.compiler == 'gcc'
-      run: |
-        echo "CC=gcc" >> $GITHUB_ENV
-        echo "CXX=g++" >> $GITHUB_ENV
-    
-    - name: Set up Clang (Linux)
-      if: runner.os == 'Linux' && matrix.compiler == 'clang'
-      run: |
-        sudo apt-get install -y clang
-        echo "CC=clang" >> $GITHUB_ENV
-        echo "CXX=clang++" >> $GITHUB_ENV
-    
-    # ============ Windows: 设置 MSVC 环境 ============
-    - name: Setup MSVC Environment (Windows)
-      if: runner.os == 'Windows'
-      uses: ilammy/msvc-dev-cmd@v1
-
-    # ============ 配置和构建 ============
-    - name: Configure CMake (Windows)
-      if: runner.os == 'Windows'
-      shell: cmd
-      run: |
-        set BUILD_SHARED_LIBS=OFF
-        if "${{ matrix.build_type }}"=="shared" set BUILD_SHARED_LIBS=ON
-        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%CMAKE_TOOLCHAIN_FILE% -DVCPKG_INSTALLED_DIR=%VCPKG_INSTALLED_DIR% -DENABLE_UNIT_TESTS=ON -Dgtest_force_shared_crt=ON -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL -DCMAKE_POLICY_DEFAULT_CMP0091=NEW -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }}
-
-    - name: Configure CMake (Linux/macOS)
-      if: runner.os != 'Windows'
       shell: bash
       run: |
-        BUILD_SHARED_LIBS=OFF
-        if [ "${{ matrix.build_type }}" = "shared" ]; then
-          BUILD_SHARED_LIBS=ON
-        fi
-        cmake -B build \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DENABLE_UNIT_TESTS=ON \
-          -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS \
-          -DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }}
+        vcpkg install curl:x64-windows openssl:x64-windows
 
-    - name: Build
-      shell: bash
-      run: cmake --build build --config Release -j$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 2)
-
-    # ============ 运行测试 ============
-    - name: Run tests
+    # Build and test both shared and static libraries in one job
+    - name: Build Shared Library
       shell: bash
       run: |
-        cd build
-        ctest --output-on-failure --verbose
-    
-    # ============ 安装测试 ============
-    - name: Test installation
-      shell: bash
-      run: |
-        cmake --install build --prefix ${{ runner.temp }}/install
-        echo "Installation completed successfully"
-    
-    # ============ find_package 测试 ============
-    - name: Test find_package integration
-      shell: bash
-      run: |
-        TEST_DIR="${{ runner.temp }}/find_package_test"
-        mkdir -p "$TEST_DIR"
-        
-        # 创建测试 CMakeLists.txt
-        cat > "$TEST_DIR/CMakeLists.txt" << 'EOF'
-        cmake_minimum_required(VERSION 3.13)
-        project(TestFindPackage)
-        set(CMAKE_CXX_STANDARD ${{ matrix.cxx_standard }})
-        find_package(alibabacloud_credential REQUIRED)
-        message(STATUS "Found alibabacloud_credential: ${alibabacloud_credential_VERSION}")
-        EOF
-        
-        # 创建测试 main.cpp
-        cat > "$TEST_DIR/main.cpp" << 'EOF'
-        #include <alibabacloud/credential/Credential.hpp>
-        int main() {
-            // 简单的编译测试
-            return 0;
-        }
-        EOF
-        
-        # 测试 find_package
-        cd "$TEST_DIR"
         if [ "${{ runner.os }}" = "Windows" ]; then
-          cmake -B build -G Ninja -DCMAKE_PREFIX_PATH="${{ runner.temp }}/install" -DCMAKE_TOOLCHAIN_FILE=%CMAKE_TOOLCHAIN_FILE%
+          cmake -B build-shared \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED_LIBS=ON \
+            -DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }} \
+            -DENABLE_UNIT_TESTS=ON \
+            -DCMAKE_INSTALL_PREFIX=./install-shared \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
         else
-          cmake -B build -DCMAKE_PREFIX_PATH="${{ runner.temp }}/install"
+          cmake -B build-shared \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED_LIBS=ON \
+            -DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }} \
+            -DENABLE_UNIT_TESTS=ON \
+            -DCMAKE_INSTALL_PREFIX=./install-shared
         fi
-        
-        echo "find_package test completed successfully"
-    
-    # ============ 代码覆盖率 (仅 Linux + GCC + shared + C++11) ============
-    - name: Generate coverage report
-      if: runner.os == 'Linux' && matrix.compiler == 'gcc' && matrix.build_type == 'shared' && matrix.cxx_standard == 11
-      run: |
-        cd build
-        # 如果有 lcov，生成覆盖率报告
-        if command -v lcov &> /dev/null; then
-          lcov --capture --directory . --output-file coverage.info || true
-          lcov --remove coverage.info '/usr/*' '*/external/*' '*/tests/*' --output-file coverage.info || true
-          lcov --list coverage.info || true
-        fi
-    
-    - name: Upload coverage to Codecov
-      if: runner.os == 'Linux' && matrix.compiler == 'gcc' && matrix.build_type == 'shared' && matrix.cxx_standard == 11
-      uses: codecov/codecov-action@v4
-      with:
-        file: ./build/coverage.info
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
-        token: ${{ secrets.CODECOV_TOKEN }}
+        cmake --build build-shared --config Release
 
-  # ============ 构建状态汇总 ============
-  build-status:
-    name: Build Status
-    if: always()
-    needs: [build-and-test, format-check]
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Check build status
+    - name: Test Shared Library
+      shell: bash
+      timeout-minutes: 5
       run: |
-        if [ "${{ needs.build-and-test.result }}" != "success" ]; then
-          echo "Build and test failed!"
-          exit 1
+        cd build-shared
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          # Windows: Copy DLL to test directory and run directly
+          cp src/Release/*.dll tests/Release/ 2>/dev/null || true
+          ./tests/Release/alibabacloud_credentialTest.exe
+        else
+          ctest --output-on-failure -C Release
         fi
-        echo "All builds passed!"
+
+    - name: Install Shared Library
+      run: cmake --install build-shared --config Release --prefix ./install-shared
+
+    - name: Test find_package Integration (Shared)
+      shell: bash
+      run: |
+        mkdir -p sample_test_shared
+        cat > sample_test_shared/CMakeLists.txt << 'EOF'
+        cmake_minimum_required(VERSION 3.13)
+        project(sample_test CXX)
+        find_package(alibabacloud_credential REQUIRED)
+        add_executable(sample_app main.cpp)
+        target_link_libraries(sample_app alibabacloud_credential::alibabacloud_credential)
+        EOF
+        echo '#include <alibabacloud/credential/Credential.hpp>
+        int main() { return 0; }' > sample_test_shared/main.cpp
+        
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          cmake -S sample_test_shared -B sample_test_shared/build \
+            -DCMAKE_PREFIX_PATH=$(pwd)/install-shared \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+        else
+          cmake -S sample_test_shared -B sample_test_shared/build \
+            -DCMAKE_PREFIX_PATH=$(pwd)/install-shared \
+            -DOPENSSL_ROOT_DIR=${{ env.OPENSSL_ROOT_DIR }}
+        fi
+        cmake --build sample_test_shared/build --config Release
+
+    - name: Build Static Library
+      shell: bash
+      run: |
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          cmake -B build-static \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }} \
+            -DENABLE_UNIT_TESTS=ON \
+            -DCMAKE_INSTALL_PREFIX=./install-static \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+        else
+          cmake -B build-static \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }} \
+            -DENABLE_UNIT_TESTS=ON \
+            -DCMAKE_INSTALL_PREFIX=./install-static
+        fi
+        cmake --build build-static --config Release
+
+    - name: Test Static Library
+      shell: bash
+      timeout-minutes: 5
+      run: |
+        cd build-static
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          # Windows: Run test directly
+          ./tests/Release/alibabacloud_credentialTest.exe
+        else
+          ctest --output-on-failure -C Release
+        fi
+
+    - name: Install Static Library
+      run: cmake --install build-static --config Release --prefix ./install-static
+
+    - name: Test find_package Integration (Static)
+      shell: bash
+      run: |
+        mkdir -p sample_test_static
+        cat > sample_test_static/CMakeLists.txt << 'EOF'
+        cmake_minimum_required(VERSION 3.13)
+        project(sample_test CXX)
+        find_package(alibabacloud_credential REQUIRED)
+        add_executable(sample_app main.cpp)
+        target_link_libraries(sample_app alibabacloud_credential::alibabacloud_credential)
+        EOF
+        echo '#include <alibabacloud/credential/Credential.hpp>
+        int main() { return 0; }' > sample_test_static/main.cpp
+        
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          cmake -S sample_test_static -B sample_test_static/build \
+            -DCMAKE_PREFIX_PATH=$(pwd)/install-static \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+        else
+          cmake -S sample_test_static -B sample_test_static/build \
+            -DCMAKE_PREFIX_PATH=$(pwd)/install-static \
+            -DOPENSSL_ROOT_DIR=${{ env.OPENSSL_ROOT_DIR }}
+        fi
+        cmake --build sample_test_static/build --config Release

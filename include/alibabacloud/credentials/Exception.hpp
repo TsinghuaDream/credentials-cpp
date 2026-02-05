@@ -15,12 +15,12 @@ namespace Credentials {
  * Aligned with tea-java TeaException design pattern
  * Supports multiple construction methods and comprehensive error information
  */
-class ALIBABACLOUD_CREDENTIALS_EXPORT CredentialException : public std::exception {
+class CredentialException : public std::exception {
 public:
     /**
      * @brief Default constructor
      */
-    CredentialException() = default;
+    CredentialException() {}
 
     /**
      * @brief Construct with message only - primary constructor for string literals
@@ -73,6 +73,11 @@ public:
             accessDeniedDetail_ = json["accessDeniedDetail"];
         }
     }
+
+    CredentialException(const CredentialException&) = default;
+    CredentialException(CredentialException&&) = default;
+    CredentialException& operator=(const CredentialException&) = default;
+    CredentialException& operator=(CredentialException&&) = default;
 
     /**
      * @brief Static factory method for JSON construction to avoid ambiguity

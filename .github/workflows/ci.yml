@@ -116,7 +116,7 @@ jobs:
         if [ "${{ runner.os }}" = "Windows" ]; then
           # Windows: Copy DLL to test directory and run directly
           cp src/Release/*.dll tests/Release/ 2>/dev/null || true
-          ./tests/Release/alibabacloud_credentialTest.exe
+          ./tests/Release/alibabacloud_credentialsTest.exe
         else
           ctest --output-on-failure -C Release
         fi
@@ -131,11 +131,11 @@ jobs:
         cat > sample_test_shared/CMakeLists.txt << 'EOF'
         cmake_minimum_required(VERSION 3.13)
         project(sample_test CXX)
-        find_package(alibabacloud_credential REQUIRED)
+        find_package(alibabacloud_credentials REQUIRED)
         add_executable(sample_app main.cpp)
-        target_link_libraries(sample_app alibabacloud_credential::alibabacloud_credential)
+        target_link_libraries(sample_app alibabacloud_credentials::alibabacloud_credentials)
         EOF
-        echo '#include <alibabacloud/credential/Credential.hpp>
+        echo '#include <alibabacloud/credentials/Client.hpp>
         int main() { return 0; }' > sample_test_shared/main.cpp
         
         if [ "${{ runner.os }}" = "Windows" ]; then
@@ -188,7 +188,7 @@ jobs:
         cd build-static
         if [ "${{ runner.os }}" = "Windows" ]; then
           # Windows: Run test directly
-          ./tests/Release/alibabacloud_credentialTest.exe
+          ./tests/Release/alibabacloud_credentialsTest.exe
         else
           ctest --output-on-failure -C Release
         fi
@@ -203,11 +203,11 @@ jobs:
         cat > sample_test_static/CMakeLists.txt << 'EOF'
         cmake_minimum_required(VERSION 3.13)
         project(sample_test CXX)
-        find_package(alibabacloud_credential REQUIRED)
+        find_package(alibabacloud_credentials REQUIRED)
         add_executable(sample_app main.cpp)
-        target_link_libraries(sample_app alibabacloud_credential::alibabacloud_credential)
+        target_link_libraries(sample_app alibabacloud_credentials::alibabacloud_credentials)
         EOF
-        echo '#include <alibabacloud/credential/Credential.hpp>
+        echo '#include <alibabacloud/credentials/Client.hpp>
         int main() { return 0; }' > sample_test_static/main.cpp
         
         if [ "${{ runner.os }}" = "Windows" ]; then

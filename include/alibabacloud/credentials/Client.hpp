@@ -1,14 +1,14 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_CLIENT_HPP_
-#define ALIBABACLOUD_CREDENTIAL_CLIENT_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_CLIENT_HPP_
+#define ALIBABACLOUD_CREDENTIALS_CLIENT_HPP_
 
-#include <alibabacloud/credential/Model.hpp>
-#include <alibabacloud/credential/provider/Provider.hpp>
+#include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/provider/Provider.hpp>
 
 #include <memory>
 #include <string>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 class Client : public Darabonba::Model {
   friend void to_json(Darabonba::Json &j, const Client &obj) {
     DARABONBA_PTR_TO_JSON(config, config_);
@@ -118,22 +118,22 @@ private:
   std::shared_ptr<Provider> provider_ = nullptr;
 };
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace Alibabacloud
 
 
 
 namespace nlohmann {
   template <>
-  struct adl_serializer<std::shared_ptr<AlibabaCloud::Credential::Client>> {
-    static void to_json(json &j, const std::shared_ptr<AlibabaCloud::Credential::Client> client) {
+  struct adl_serializer<std::shared_ptr<AlibabaCloud::Credentials::Client>> {
+    static void to_json(json &j, const std::shared_ptr<AlibabaCloud::Credentials::Client> client) {
       j = reinterpret_cast<uintptr_t>(client.get());
     }
 
-    static std::shared_ptr<AlibabaCloud::Credential::Client> from_json(const json &j) {
+    static std::shared_ptr<AlibabaCloud::Credentials::Client> from_json(const json &j) {
       if (!j.is_null()) {
-        AlibabaCloud::Credential::Client *ptr = reinterpret_cast<AlibabaCloud::Credential::Client *>(j.get<uintptr_t>());
-        return std::make_shared<AlibabaCloud::Credential::Client>(*ptr);
+        AlibabaCloud::Credentials::Client *ptr = reinterpret_cast<AlibabaCloud::Credentials::Client *>(j.get<uintptr_t>());
+        return std::make_shared<AlibabaCloud::Credentials::Client>(*ptr);
       }
       return nullptr;
     }

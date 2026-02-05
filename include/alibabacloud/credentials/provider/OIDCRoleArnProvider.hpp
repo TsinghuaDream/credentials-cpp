@@ -1,15 +1,15 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_OIDCROLEARNPROVIDER_HPP_
-#define ALIBABACLOUD_CREDENTIAL_OIDCROLEARNPROVIDER_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_OIDCROLEARNPROVIDER_HPP_
+#define ALIBABACLOUD_CREDENTIALS_OIDCROLEARNPROVIDER_HPP_
 
 #include <darabonba/Env.hpp>
 
-#include <alibabacloud/credential/Constant.hpp>
-#include <alibabacloud/credential/Model.hpp>
-#include <alibabacloud/credential/provider/NeedFreshProvider.hpp>
-#include <alibabacloud/credential/provider/Provider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
+#include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/provider/NeedFreshProvider.hpp>
+#include <alibabacloud/credentials/provider/Provider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 class OIDCRoleArnProvider : public NeedFreshProvider,
                            std::enable_shared_from_this<OIDCRoleArnProvider>{
@@ -85,7 +85,7 @@ protected:
   int64_t connectTimeout_ = 10000;  // Connection timeout in milliseconds
   int64_t readTimeout_ = 5000;      // Read timeout in milliseconds
 };
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud
 
 #endif

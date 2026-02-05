@@ -1,13 +1,13 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_NEEDFRESHPROVIDER_HPP_
-#define ALIBABACLOUD_CREDENTIAL_NEEDFRESHPROVIDER_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_NEEDFRESHPROVIDER_HPP_
+#define ALIBABACLOUD_CREDENTIALS_NEEDFRESHPROVIDER_HPP_
 
 #include <ctime>
 #include <sstream>
 #include <iomanip>
 
-#include <alibabacloud/credential/provider/Provider.hpp>
+#include <alibabacloud/credentials/provider/Provider.hpp>
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 class NeedFreshProvider : public Provider {
 public:
   NeedFreshProvider() = default;
@@ -82,7 +82,7 @@ protected:
   mutable Models::CredentialModel credential_;
   mutable int64_t expiration_ = 0;
 };
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud
 
 #endif

@@ -1,13 +1,13 @@
-#include <alibabacloud/credential/AuthUtil.hpp>
-#include <alibabacloud/credential/Exception.hpp>
-#include <alibabacloud/credential/provider/RsaKeyPairProvider.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
+#include <alibabacloud/credentials/provider/RsaKeyPairProvider.hpp>
 #include <darabonba/Core.hpp>
 #include <darabonba/encode/Encoder.hpp>
 #include <darabonba/http/Query.hpp>
 #include <darabonba/signature/Signer.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 bool RsaKeyPairProvider::refreshCredential() const {
   Darabonba::Http::Query query = {
@@ -55,5 +55,5 @@ bool RsaKeyPairProvider::refreshCredential() const {
   return true;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

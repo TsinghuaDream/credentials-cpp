@@ -1,20 +1,20 @@
 #include <gtest/gtest.h>
-#include <alibabacloud/credential/Credential.hpp>
-#include <alibabacloud/credential/Constant.hpp>
-#include <alibabacloud/credential/provider/AccessKeyProvider.hpp>
-#include <alibabacloud/credential/provider/BearerTokenProvider.hpp>
-#include <alibabacloud/credential/provider/StsProvider.hpp>
-#include <alibabacloud/credential/provider/DefaultProvider.hpp>
-#include <alibabacloud/credential/provider/EcsRamRoleProvider.hpp>
-#include <alibabacloud/credential/provider/RamRoleArnProvider.hpp>
-#include <alibabacloud/credential/provider/RsaKeyPairProvider.hpp>
-#include <alibabacloud/credential/provider/OIDCRoleArnProvider.hpp>
-#include <alibabacloud/credential/provider/URLProvider.hpp>
-#include <alibabacloud/credential/provider/CloudSSOCredentialsProvider.hpp>
-#include <alibabacloud/credential/provider/OAuthCredentialsProvider.hpp>
+#include <alibabacloud/credentials/Client.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
+#include <alibabacloud/credentials/provider/AccessKeyProvider.hpp>
+#include <alibabacloud/credentials/provider/BearerTokenProvider.hpp>
+#include <alibabacloud/credentials/provider/StsProvider.hpp>
+#include <alibabacloud/credentials/provider/DefaultProvider.hpp>
+#include <alibabacloud/credentials/provider/EcsRamRoleProvider.hpp>
+#include <alibabacloud/credentials/provider/RamRoleArnProvider.hpp>
+#include <alibabacloud/credentials/provider/RsaKeyPairProvider.hpp>
+#include <alibabacloud/credentials/provider/OIDCRoleArnProvider.hpp>
+#include <alibabacloud/credentials/provider/URLProvider.hpp>
+#include <alibabacloud/credentials/provider/CloudSSOCredentialsProvider.hpp>
+#include <alibabacloud/credentials/provider/OAuthCredentialsProvider.hpp>
 #include <memory>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 // ==================== Client Constructor Tests ====================
 

@@ -1,15 +1,15 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_STSPROVIDER_HPP_
-#define ALIBABACLOUD_CREDENTIAL_STSPROVIDER_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_STSPROVIDER_HPP_
+#define ALIBABACLOUD_CREDENTIALS_STSPROVIDER_HPP_
 
 #include <memory>
 #include <string>
 
-#include <alibabacloud/credential/Constant.hpp>
-#include <alibabacloud/credential/Model.hpp>
-#include <alibabacloud/credential/provider/Provider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
+#include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/provider/Provider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 class StsProvider : public Provider {
 public:
   StsProvider(std::shared_ptr<Models::Config> config) {
@@ -42,7 +42,7 @@ public:
 protected:
   mutable Models::CredentialModel credential_;
 };
-} // namespace Credential
+} // namespace Credentials
 
 } // namespace AlibabaCloud
 #endif

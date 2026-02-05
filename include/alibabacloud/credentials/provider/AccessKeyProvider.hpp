@@ -1,15 +1,15 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_ACCESSKEYPROVIDER_HPP_
-#define ALIBABACLOUD_CREDENTIAL_ACCESSKEYPROVIDER_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_ACCESSKEYPROVIDER_HPP_
+#define ALIBABACLOUD_CREDENTIALS_ACCESSKEYPROVIDER_HPP_
 
 #include <memory>
 #include <string>
 
-#include <alibabacloud/credential/Constant.hpp>
-#include <alibabacloud/credential/Model.hpp>
-#include <alibabacloud/credential/provider/Provider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
+#include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/provider/Provider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 class AccessKeyProvider : public Provider {
 public:
@@ -39,7 +39,7 @@ public:
 protected:
   mutable Models::CredentialModel credential_;
 };
-} // namespace Credential
+} // namespace Credentials
 
 } // namespace AlibabaCloud
 #endif

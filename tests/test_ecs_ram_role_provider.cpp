@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <alibabacloud/credential/provider/EcsRamRoleProvider.hpp>
-#include <alibabacloud/credential/provider/RefreshableProvider.hpp>
-#include <alibabacloud/credential/Constant.hpp>
+#include <alibabacloud/credentials/provider/EcsRamRoleProvider.hpp>
+#include <alibabacloud/credentials/provider/RefreshableProvider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
 #include <darabonba/Exception.hpp>
 #include <darabonba/Core.hpp>
 #include <thread>
@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <map>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 #if defined(_WIN32) || defined(_WIN64)
 static inline int setenv(const char* name, const char* value, int /*overwrite*/) {

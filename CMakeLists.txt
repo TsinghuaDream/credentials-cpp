@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-project(alibabacloud_credential VERSION "0.1.0" LANGUAGES CXX)
+project(alibabacloud_credentials VERSION "0.1.0" LANGUAGES CXX)
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Options >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> #
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)

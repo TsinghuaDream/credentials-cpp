@@ -1,6 +1,6 @@
-#include <alibabacloud/credential/Constant.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 // Ini
 const std::string Constant::INI_ACCESS_KEY_ID = "access_key_id";
@@ -58,5 +58,5 @@ const std::string Constant::ENV_OAUTH_CLIENT_SECRET =
     "ALIBABA_CLOUD_CLIENT_SECRET";
 const std::string Constant::ENV_OAUTH_TOKEN_ENDPOINT =
     "ALIBABA_CLOUD_OAUTH_TOKEN_ENDPOINT";
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

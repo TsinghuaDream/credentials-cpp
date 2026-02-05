@@ -1,13 +1,13 @@
 #include <fstream>
 
-#include <alibabacloud/credential/Exception.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
 #include <darabonba/Core.hpp>
 
-#include <alibabacloud/credential/AuthUtil.hpp>
-#include <alibabacloud/credential/provider/OIDCRoleArnProvider.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
+#include <alibabacloud/credentials/provider/OIDCRoleArnProvider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 bool OIDCRoleArnProvider::refreshCredential() const {
   std::ifstream ifs(oidcTokenFilePath_);
   if (!ifs) {
@@ -64,5 +64,5 @@ bool OIDCRoleArnProvider::refreshCredential() const {
   return true;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

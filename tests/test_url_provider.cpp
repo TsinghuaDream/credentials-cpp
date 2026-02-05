@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include <alibabacloud/credential/provider/URLProvider.hpp>
-#include <alibabacloud/credential/Constant.hpp>
+#include <alibabacloud/credentials/provider/URLProvider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
 #include <darabonba/Exception.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 // ==================== URLProvider Tests ====================
 // Note: These tests verify provider construction and configuration

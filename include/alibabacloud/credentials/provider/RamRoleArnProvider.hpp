@@ -1,16 +1,16 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_RAMROLEARNPROVIDER_HPP_
-#define ALIBABACLOUD_CREDENTIAL_RAMROLEARNPROVIDER_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_RAMROLEARNPROVIDER_HPP_
+#define ALIBABACLOUD_CREDENTIALS_RAMROLEARNPROVIDER_HPP_
 
 #include <string>
 
 #include <darabonba/Env.hpp>
 
-#include <alibabacloud/credential/Constant.hpp>
-#include <alibabacloud/credential/Model.hpp>
-#include <alibabacloud/credential/provider/NeedFreshProvider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
+#include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/provider/NeedFreshProvider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 class RamRoleArnProvider : public NeedFreshProvider,
                            std::enable_shared_from_this<RamRoleArnProvider> {
@@ -76,7 +76,7 @@ private:
   int64_t readTimeout_ = 5000;      // Read timeout in milliseconds
 };
 
-} // namespace Credential
+} // namespace Credentials
 
 } // namespace AlibabaCloud
 

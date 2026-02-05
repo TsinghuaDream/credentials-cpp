@@ -15,7 +15,7 @@
  * 11. Profile (credentials file)
  */
 
-#include <alibabacloud/credentials/Client.hpp>
+#include <alibabacloud/credential/Credential.hpp>
 #include <iostream>
 
 using namespace AlibabaCloud::Credentials;

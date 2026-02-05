@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find the credentials library
-find_package(alibabacloud_credential REQUIRED)
+find_package(alibabacloud_credentials REQUIRED)
 
 # Example: All credential types demonstration
 add_executable(credential_examples credential_examples.cpp)
-target_link_libraries(credential_examples alibabacloud_credential::alibabacloud_credential)
+target_link_libraries(credential_examples alibabacloud_credentials::alibabacloud_credentials)

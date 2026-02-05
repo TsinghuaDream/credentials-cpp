@@ -78,7 +78,7 @@ git clone https://github.com/aliyun/credentials-cpp.git
      - 点击 `Generate`，生成 VS 解决方案
 
 3. 编译安装 C++ SDK：
-   - 进入 `cmake_build` 目录，使用 Visual Studio 打开 `alibabacloud_credential.sln` 解决方案
+   - 进入 `cmake_build` 目录，使用 Visual Studio 打开 `alibabacloud_credentials.sln` 解决方案
    - 选择 `Release` 配置
    - 在"生成"->"配置管理器"中勾选 INSTALL
    - 生成 -> 生成解决方案
@@ -110,10 +110,10 @@ cmake --install build
 ### 使用默认凭证提供者链（推荐）
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Clients.hpp>
 #include <iostream>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     // 使用默认凭证提供者链
@@ -136,9 +136,9 @@ int main() {
 通过[用户信息管理][ak]设置 access_key，它们具有该账户完全的权限，请妥善保管。有时出于安全考虑，您不能把具有完全访问权限的主账户 AccessKey 交于一个项目的开发者使用，您可以[创建RAM子账户][ram]并为子账户[授权][permissions]，使用RAM子用户的 AccessKey 来进行API调用。
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;
@@ -158,9 +158,9 @@ int main() {
 通过安全令牌服务（Security Token Service，简称 STS），申请临时安全凭证（Temporary Security Credentials，简称 TSC），创建临时安全凭证。
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;
@@ -180,9 +180,9 @@ int main() {
 通过指定[RAM角色][RAM Role]，让凭证自动申请维护 STS Token。你可以通过为 `Policy` 赋值来限制获取到的 STS Token 的权限。
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;
@@ -206,9 +206,9 @@ int main() {
 通过指定[OIDC 角色][OIDC Role]，让凭证自动申请维护 STS Token。你可以通过为 `Policy` 赋值来限制获取到的 STS Token 的权限。
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;
@@ -231,9 +231,9 @@ int main() {
 通过指定角色名称，让凭证自动申请维护 STS Token
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;
@@ -252,9 +252,9 @@ int main() {
 通过指定提供凭证的自定义网络服务地址，让凭证自动申请维护 STS Token
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;
@@ -272,9 +272,9 @@ int main() {
 如呼叫中心(CCC)需用此凭证，请自行申请维护 Bearer Token。
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;

@@ -1,14 +1,14 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_CLIPROFILEPROVIDER_HPP_
-#define ALIBABACLOUD_CREDENTIAL_CLIPROFILEPROVIDER_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_CLIPROFILEPROVIDER_HPP_
+#define ALIBABACLOUD_CREDENTIALS_CLIPROFILEPROVIDER_HPP_
 
 #include <memory>
 
-#include <alibabacloud/credential/Exception.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
 
-#include <alibabacloud/credential/provider/Provider.hpp>
+#include <alibabacloud/credentials/provider/Provider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 /**
  * @brief CLI Profile credential provider
@@ -113,7 +113,7 @@ private:
   mutable std::unique_ptr<Provider> provider_;     // Actual credential provider
 };
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud
 
 #endif

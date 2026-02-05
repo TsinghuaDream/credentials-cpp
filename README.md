@@ -116,7 +116,7 @@ git clone https://github.com/aliyun/credentials-cpp.git
      - Click `Generate` to generate the VS solution
 
 3. Build and Install C++ SDK:
-   - Go to the `cmake_build` directory and open `alibabacloud_credential.sln` with Visual Studio
+   - Go to the `cmake_build` directory and open `alibabacloud_credentials.sln` with Visual Studio
    - Select `Release` configuration
    - Check INSTALL option from Build -> Configuration Manager
    - Build -> Build Solution
@@ -142,10 +142,10 @@ Before you begin, you need to sign up for an Alibaba Cloud account and retrieve 
 ### Using Default Credentials Provider Chain (Recommended)
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 #include <iostream>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     // Use default credentials provider chain
@@ -164,10 +164,10 @@ int main() {
 ### Using Specific Credential Type
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 #include <iostream>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     // Create config with AccessKey
@@ -229,9 +229,9 @@ access_key_secret = <your-access-key-secret>
 Setup access_key credential through [User Information Management][ak]. It has full authority over the account, please keep it safe. Sometimes for security reasons, you cannot hand over a primary account AccessKey with full access to the developer of a project. You may create a sub-account [RAM Sub-account][ram], grant its [authorization][permissions], and use the AccessKey of RAM Sub-account.
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;
@@ -254,9 +254,9 @@ int main() {
 Create a temporary security credential by applying Temporary Security Credentials (TSC) through the Security Token Service (STS).
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;
@@ -281,9 +281,9 @@ int main() {
 By specifying [RAM Role][RAM Role], the credential will be able to automatically request maintenance of STS Token. If you want to limit the permissions ([How to make a policy][policy]) of STS Token, you can assign value for `Policy`.
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;
@@ -313,9 +313,9 @@ int main() {
 By specifying OIDC Role, the credential will be able to automatically request maintenance of STS Token using OIDC Token.
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;
@@ -360,9 +360,9 @@ By default, the Credentials tool accesses the metadata server of ECS in security
 You can specify `ALIBABA_CLOUD_ECS_METADATA_DISABLED=true` to disable access from the Credentials tool to the metadata server of ECS.
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;
@@ -393,9 +393,9 @@ export ALIBABA_CLOUD_ECS_METADATA="<your-ecs-role-name>"
 Get credentials by specifying a URL and the credential tool will automatically request this URL to obtain credentials.
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;
@@ -436,9 +436,9 @@ The response from the URL must be in the following format:
 If credential is required by the Cloud Call Centre (CCC), please apply for Bearer Token maintenance by yourself.
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;
@@ -459,9 +459,9 @@ int main() {
 By specifying the public key ID and the private key file, the credential will be able to automatically request maintenance of the AccessKey. Only Japan station is supported.
 
 ```cpp
-#include <alibabacloud/credential/Credential.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 int main() {
     Models::Config config;

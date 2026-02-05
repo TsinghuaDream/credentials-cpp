@@ -1,13 +1,13 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_PROVIDER_HPP_
-#define ALIBABACLOUD_CREDENTIAL_PROVIDER_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_PROVIDER_HPP_
+#define ALIBABACLOUD_CREDENTIALS_PROVIDER_HPP_
 
 #include <memory>
 #include <string>
 
-#include <alibabacloud/credential/Model.hpp>
+#include <alibabacloud/credentials/Model.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 class Provider {
 public:
   Provider() = default;
@@ -22,6 +22,6 @@ public:
    */
   virtual std::string getProviderName() const = 0;
 };
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud
 #endif

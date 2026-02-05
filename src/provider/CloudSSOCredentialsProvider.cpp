@@ -1,12 +1,12 @@
-#include <alibabacloud/credential/AuthUtil.hpp>
-#include <alibabacloud/credential/Exception.hpp>
-#include <alibabacloud/credential/provider/CloudSSOCredentialsProvider.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
+#include <alibabacloud/credentials/provider/CloudSSOCredentialsProvider.hpp>
 #include <darabonba/Core.hpp>
 #include <darabonba/http/Query.hpp>
 #include <memory>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 const std::string CloudSSOCredentialsProvider::CLOUD_SSO_ENDPOINT =
     "cloudsso.aliyuncs.com";
@@ -63,5 +63,5 @@ bool CloudSSOCredentialsProvider::refreshCredential() const {
   return true;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

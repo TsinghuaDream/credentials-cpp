@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
-#include <alibabacloud/credential/provider/RefreshableProvider.hpp>
-#include <alibabacloud/credential/provider/NeedFreshProvider.hpp>
-#include <alibabacloud/credential/Constant.hpp>
+#include <alibabacloud/credentials/provider/RefreshableProvider.hpp>
+#include <alibabacloud/credentials/provider/NeedFreshProvider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
 #include <thread>
 #include <vector>
 #include <atomic>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 /**
  * @brief Mock provider for testing RefreshableProvider thread safety

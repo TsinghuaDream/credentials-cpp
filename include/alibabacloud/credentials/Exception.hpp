@@ -1,21 +1,21 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_EXCEPTION_HPP_
-#define ALIBABACLOUD_CREDENTIAL_EXCEPTION_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_EXCEPTION_HPP_
+#define ALIBABACLOUD_CREDENTIALS_EXCEPTION_HPP_
 
 #include <exception>
 #include <string>
 #include <map>
 #include <darabonba/Core.hpp>
-#include <alibabacloud/credential/Export.hpp>
+#include <alibabacloud/credentials/Export.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 /**
  * @brief Custom exception class for credential operations
  * Aligned with tea-java TeaException design pattern
  * Supports multiple construction methods and comprehensive error information
  */
-class ALIBABACLOUD_CREDENTIAL_EXPORT CredentialException : public std::exception {
+class ALIBABACLOUD_CREDENTIALS_EXPORT CredentialException : public std::exception {
 public:
     /**
      * @brief Default constructor
@@ -159,7 +159,7 @@ private:
     Darabonba::Json accessDeniedDetail_;
 };
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud
 
-#endif // ALIBABACLOUD_CREDENTIAL_EXCEPTION_HPP_
+#endif // ALIBABACLOUD_CREDENTIALS_EXCEPTION_HPP_

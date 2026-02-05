@@ -1,14 +1,14 @@
 #include <memory>
 
 #include <darabonba/Env.hpp>
-#include <alibabacloud/credential/Exception.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
 
-#include <alibabacloud/credential/provider/AccessKeyProvider.hpp>
-#include <alibabacloud/credential/provider/EnvironmentVariableProvider.hpp>
-#include <alibabacloud/credential/provider/StsProvider.hpp>
+#include <alibabacloud/credentials/provider/AccessKeyProvider.hpp>
+#include <alibabacloud/credentials/provider/EnvironmentVariableProvider.hpp>
+#include <alibabacloud/credentials/provider/StsProvider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 std::unique_ptr<Provider> EnvironmentVariableProvider::createProvider() {
   const auto accessKeyId =
@@ -33,5 +33,5 @@ std::unique_ptr<Provider> EnvironmentVariableProvider::createProvider() {
   }
   return nullptr;
 }
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

@@ -1,13 +1,13 @@
-#include <alibabacloud/credential/AuthUtil.hpp>
-#include <alibabacloud/credential/Exception.hpp>
-#include <alibabacloud/credential/provider/EcsRamRoleProvider.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
+#include <alibabacloud/credentials/provider/EcsRamRoleProvider.hpp>
 #include <darabonba/Core.hpp>
 #include <darabonba/Env.hpp>
 #include <darabonba/encode/Encoder.hpp>
 #include <memory>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 // C++11 requires out-of-class definition for constexpr static members
 constexpr int EcsRamRoleProvider::DEFAULT_READ_TIMEOUT;
@@ -252,5 +252,5 @@ int64_t EcsRamRoleProvider::getPrefetchTime(int64_t expiration) {
   return now + 60 * 60;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

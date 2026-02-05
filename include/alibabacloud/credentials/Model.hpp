@@ -1,18 +1,18 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_MODEL_HPP_
-#define ALIBABACLOUD_CREDENTIAL_MODEL_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_MODEL_HPP_
+#define ALIBABACLOUD_CREDENTIALS_MODEL_HPP_
 
 #include <darabonba/Model.hpp>
 #include <memory>
 using namespace std;
 // Forward declaration to avoid circular dependency
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 class AuthUtil;
 }
 } // namespace AlibabaCloud
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 namespace Models {
 class CredentialModel : public Darabonba::Model {
 public:
@@ -592,6 +592,6 @@ protected:
 };
 
 } // namespace Models
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud
 #endif

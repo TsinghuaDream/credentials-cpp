@@ -1,22 +1,22 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_EcsRamRoleProvider_HPP_
-#define ALIBABACLOUD_CREDENTIAL_EcsRamRoleProvider_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_EcsRamRoleProvider_HPP_
+#define ALIBABACLOUD_CREDENTIALS_EcsRamRoleProvider_HPP_
 
 #include <atomic>
 #include <memory>
 #include <string>
 
-#include <alibabacloud/credential/Constant.hpp>
-#include <alibabacloud/credential/Model.hpp>
-#include <alibabacloud/credential/provider/RefreshableProvider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
+#include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/provider/RefreshableProvider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 /**
  * @brief ECS RAM role credential provider (async refresh version)
  * 
  * Fully corresponds to Python SDK's EcsRamRoleCredentialsProvider implementation:
- * https://github.com/aliyun/credentials-python/blob/master/alibabacloud_credentials/provider/ecs_ram_role.py
+ * https://github.com/aliyun/credentials-python/blob/master/alibabacloud_credentialss/provider/ecs_ram_role.py
  * 
  * Key features:
  * - Background async refresh (NonBlocking strategy)
@@ -133,7 +133,7 @@ private:
   int64_t readTimeout_;                     // Read timeout
 };
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud
 
 #endif

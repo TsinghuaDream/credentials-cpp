@@ -1,13 +1,13 @@
-#include <alibabacloud/credential/Constant.hpp>
-#include <alibabacloud/credential/Model.hpp>
-#include <alibabacloud/credential/provider/AccessKeyProvider.hpp>
-#include <alibabacloud/credential/provider/CLIProfileProvider.hpp>
-#include <alibabacloud/credential/provider/EcsRamRoleProvider.hpp>
-#include <alibabacloud/credential/provider/OIDCRoleArnProvider.hpp>
-#include <alibabacloud/credential/provider/RamRoleArnProvider.hpp>
-#include <alibabacloud/credential/provider/RsaKeyPairProvider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
+#include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/provider/AccessKeyProvider.hpp>
+#include <alibabacloud/credentials/provider/CLIProfileProvider.hpp>
+#include <alibabacloud/credentials/provider/EcsRamRoleProvider.hpp>
+#include <alibabacloud/credentials/provider/OIDCRoleArnProvider.hpp>
+#include <alibabacloud/credentials/provider/RamRoleArnProvider.hpp>
+#include <alibabacloud/credentials/provider/RsaKeyPairProvider.hpp>
 #include <darabonba/Env.hpp>
-#include <alibabacloud/credential/Exception.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
 #include <darabonba/Ini.hpp>
 #include <fstream>
 
@@ -16,7 +16,7 @@
 using json = nlohmann::json;
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 /**
  * @brief 获取 CLI 配置文件路径（跨平台支持）
@@ -366,5 +366,5 @@ std::unique_ptr<Provider> CLIProfileProvider::createProvider() const {
   return std::unique_ptr<Provider>(new AccessKeyProvider(config));
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

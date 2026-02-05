@@ -1,17 +1,17 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_OAUTHCREDENTIALSPROVIDER_HPP_
-#define ALIBABACLOUD_CREDENTIAL_OAUTHCREDENTIALSPROVIDER_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_OAUTHCREDENTIALSPROVIDER_HPP_
+#define ALIBABACLOUD_CREDENTIALS_OAUTHCREDENTIALSPROVIDER_HPP_
 
 #include <memory>
 #include <string>
 
 #include <darabonba/Env.hpp>
 
-#include <alibabacloud/credential/Constant.hpp>
-#include <alibabacloud/credential/Model.hpp>
-#include <alibabacloud/credential/provider/NeedFreshProvider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
+#include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/provider/NeedFreshProvider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 class OAuthCredentialsProvider : public NeedFreshProvider,
                                   std::enable_shared_from_this<OAuthCredentialsProvider> {
@@ -62,7 +62,7 @@ private:
   int64_t readTimeout_ = 5000;      // Read timeout in milliseconds
 };
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud
 
 #endif

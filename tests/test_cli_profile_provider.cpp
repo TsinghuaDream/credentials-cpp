@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <alibabacloud/credential/provider/CLIProfileProvider.hpp>
+#include <alibabacloud/credentials/provider/CLIProfileProvider.hpp>
 #include <cstdlib>
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -11,10 +11,10 @@ static inline int unsetenv(const char* name) {
 }
 #endif
 
-#include <alibabacloud/credential/Constant.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
 #include <fstream>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 // ==================== CLIProfileProvider Tests ====================
 

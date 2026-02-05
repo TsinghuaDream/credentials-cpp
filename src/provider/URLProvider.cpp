@@ -1,11 +1,11 @@
 #include <darabonba/Core.hpp>
 
-#include <alibabacloud/credential/AuthUtil.hpp>
-#include <alibabacloud/credential/Exception.hpp>
-#include <alibabacloud/credential/provider/URLProvider.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
+#include <alibabacloud/credentials/provider/URLProvider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 bool URLProvider::refreshCredential() const {
   // 使用 getNewRequest 创建带 User-Agent 的请求（对应 Python SDK）
   auto req = AuthUtil::getNewRequest(url_);
@@ -29,5 +29,5 @@ bool URLProvider::refreshCredential() const {
   return true;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

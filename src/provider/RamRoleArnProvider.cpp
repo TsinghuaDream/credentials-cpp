@@ -6,15 +6,15 @@
 #include <darabonba/http/Query.hpp>
 #include <darabonba/signature/Signer.hpp>
 
-#include <alibabacloud/credential/AuthUtil.hpp>
-#include <alibabacloud/credential/Exception.hpp>
-#include <alibabacloud/credential/provider/RamRoleArnProvider.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
+#include <alibabacloud/credentials/provider/RamRoleArnProvider.hpp>
 #include <darabonba/Core.hpp>
 #include <darabonba/http/Query.hpp>
 #include <memory>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 bool RamRoleArnProvider::refreshCredential() const {
   Darabonba::Http::Query query = {
@@ -104,5 +104,5 @@ bool RamRoleArnProvider::refreshCredential() const {
   return true;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

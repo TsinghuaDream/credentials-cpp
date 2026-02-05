@@ -79,7 +79,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 if(WIN32)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE ALIBABACLOUD_CREDENTIAL_BUILD)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE ALIBABACLOUD_CREDENTIALS_BUILD)
   # Runtime library is now handled by CMAKE_MSVC_RUNTIME_LIBRARY in root CMakeLists.txt
 endif()
 

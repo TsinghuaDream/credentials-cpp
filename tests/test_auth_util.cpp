@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
-#include <alibabacloud/credential/AuthUtil.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
 #include <darabonba/http/Request.hpp>
 #include <cstdlib>
 #include <thread>
 #include <chrono>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 // ==================== AuthUtil Tests ====================
 

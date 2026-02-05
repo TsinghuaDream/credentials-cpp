@@ -1,13 +1,13 @@
-#include <alibabacloud/credential/AuthUtil.hpp>
-#include <alibabacloud/credential/Exception.hpp>
-#include <alibabacloud/credential/provider/OAuthCredentialsProvider.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
+#include <alibabacloud/credentials/provider/OAuthCredentialsProvider.hpp>
 #include <darabonba/Core.hpp>
 #include <darabonba/encode/Encoder.hpp>
 #include <darabonba/http/Query.hpp>
 #include <memory>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 const std::string OAuthCredentialsProvider::OAUTH_FETCH_ERROR_MSG =
     "Failed to get credentials from OAuth token endpoint.";
@@ -111,5 +111,5 @@ bool OAuthCredentialsProvider::refreshCredential() const {
   return true;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

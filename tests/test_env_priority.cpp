@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 #include <cstdlib>
-#include <alibabacloud/credential/provider/OIDCRoleArnProvider.hpp>
-#include <alibabacloud/credential/provider/CloudSSOCredentialsProvider.hpp>
-#include <alibabacloud/credential/provider/OAuthCredentialsProvider.hpp>
-#include <alibabacloud/credential/Constant.hpp>
-#include <alibabacloud/credential/Model.hpp>
+#include <alibabacloud/credentials/provider/OIDCRoleArnProvider.hpp>
+#include <alibabacloud/credentials/provider/CloudSSOCredentialsProvider.hpp>
+#include <alibabacloud/credentials/provider/OAuthCredentialsProvider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
+#include <alibabacloud/credentials/Model.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 // Helper functions to set/unset environment variables in a cross-platform way
 static inline void env_set(const char* k, const char* v){

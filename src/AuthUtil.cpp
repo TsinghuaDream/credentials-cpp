@@ -4,10 +4,10 @@
 #include <darabonba/Env.hpp>
 #include <darabonba/http/Request.hpp>
 
-#include <alibabacloud/credential/AuthUtil.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 std::string AuthUtil::clientType() {
   // Read environment variable each time, no global state
@@ -157,5 +157,5 @@ AuthUtil::getNewRequest(const std::string &url,
   return req;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

@@ -1,15 +1,15 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_BEARERTOKENPROVIDER_HPP_
-#define ALIBABACLOUD_CREDENTIAL_BEARERTOKENPROVIDER_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_BEARERTOKENPROVIDER_HPP_
+#define ALIBABACLOUD_CREDENTIALS_BEARERTOKENPROVIDER_HPP_
 
 #include <memory>
 #include <string>
 
-#include <alibabacloud/credential/Constant.hpp>
-#include <alibabacloud/credential/Model.hpp>
-#include <alibabacloud/credential/provider/Provider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
+#include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/provider/Provider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 class BearerTokenProvider : public Provider {
 public:
   BearerTokenProvider(std::shared_ptr<Models::Config> config) {
@@ -34,7 +34,7 @@ public:
 protected:
   mutable Models::CredentialModel credential_;
 };
-} // namespace Credential
+} // namespace Credentials
 
 } // namespace AlibabaCloud
 #endif

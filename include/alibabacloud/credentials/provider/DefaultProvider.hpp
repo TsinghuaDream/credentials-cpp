@@ -1,16 +1,16 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_DEFAULTPROVIDER_HPP_
-#define ALIBABACLOUD_CREDENTIAL_DEFAULTPROVIDER_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_DEFAULTPROVIDER_HPP_
+#define ALIBABACLOUD_CREDENTIALS_DEFAULTPROVIDER_HPP_
 
 #include <memory>
 #include <string>
 
-#include <alibabacloud/credential/Exception.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
 
-#include <alibabacloud/credential/Model.hpp>
-#include <alibabacloud/credential/provider/Provider.hpp>
+#include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/provider/Provider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 class DefaultProvider : public Provider {
 public:
   DefaultProvider();
@@ -107,7 +107,7 @@ protected:
   bool reuseLastProviderEnabled_ = false;
   mutable Provider* lastSuccessfulProvider_ = nullptr;
 };
-} // namespace Credential
+} // namespace Credentials
 
 } // namespace AlibabaCloud
 #endif

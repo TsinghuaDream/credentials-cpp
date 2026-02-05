@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
-#include <alibabacloud/credential/Credential.hpp>
-#include <alibabacloud/credential/provider/AccessKeyProvider.hpp>
-#include <alibabacloud/credential/provider/BearerTokenProvider.hpp>
-#include <alibabacloud/credential/provider/StsProvider.hpp>
-#include <alibabacloud/credential/Constant.hpp>
+#include <alibabacloud/credentials/Client.hpp>
+#include <alibabacloud/credentials/provider/AccessKeyProvider.hpp>
+#include <alibabacloud/credentials/provider/BearerTokenProvider.hpp>
+#include <alibabacloud/credentials/provider/StsProvider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
 #include <darabonba/Exception.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 // ==================== Edge Cases and Boundary Tests ====================
 

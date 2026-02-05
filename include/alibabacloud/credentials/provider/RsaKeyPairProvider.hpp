@@ -1,14 +1,14 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_RSAKEYPAIRPROVIDER_HPP_
-#define ALIBABACLOUD_CREDENTIAL_RSAKEYPAIRPROVIDER_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_RSAKEYPAIRPROVIDER_HPP_
+#define ALIBABACLOUD_CREDENTIALS_RSAKEYPAIRPROVIDER_HPP_
 
 #include <string>
 
-#include <alibabacloud/credential/Constant.hpp>
-#include <alibabacloud/credential/Model.hpp>
-#include <alibabacloud/credential/provider/NeedFreshProvider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
+#include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/provider/NeedFreshProvider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 class RsaKeyPairProvider : public NeedFreshProvider,
                            std::enable_shared_from_this<RsaKeyPairProvider> {
@@ -47,7 +47,7 @@ protected:
   std::string stsEndpoint_ = "sts.aliyuncs.com";
 };
 
-} // namespace Credential
+} // namespace Credentials
 
 } // namespace AlibabaCloud
 

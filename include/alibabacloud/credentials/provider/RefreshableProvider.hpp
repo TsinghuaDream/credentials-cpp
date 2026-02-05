@@ -1,5 +1,5 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_REFRESHABLEPROVIDER_HPP_
-#define ALIBABACLOUD_CREDENTIAL_REFRESHABLEPROVIDER_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_REFRESHABLEPROVIDER_HPP_
+#define ALIBABACLOUD_CREDENTIALS_REFRESHABLEPROVIDER_HPP_
 
 #include <atomic>
 #include <chrono>
@@ -18,10 +18,10 @@
 #include <cstring>
 #endif
 
-#include <alibabacloud/credential/provider/Provider.hpp>
+#include <alibabacloud/credentials/provider/Provider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 /**
  * @brief Refresh result wrapper class
@@ -431,7 +431,7 @@ private:
   mutable std::mutex accessMutex_;   // Access lock
 };
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud
 
 #endif

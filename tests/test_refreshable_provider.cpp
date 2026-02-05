@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
-#include <alibabacloud/credential/provider/RefreshableProvider.hpp>
-#include <alibabacloud/credential/Constant.hpp>
+#include <alibabacloud/credentials/provider/RefreshableProvider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
 #include <thread>
 #include <chrono>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 // ==================== RefreshableProvider Tests ====================
 

@@ -1,5 +1,5 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_AUTHUTIL_HPP_
-#define ALIBABACLOUD_CREDENTIAL_AUTHUTIL_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_AUTHUTIL_HPP_
+#define ALIBABACLOUD_CREDENTIALS_AUTHUTIL_HPP_
 
 #include <string>
 
@@ -11,7 +11,7 @@ class Request;
 
 namespace AlibabaCloud {
 
-namespace Credential {
+namespace Credentials {
 
 class AuthUtil {
 public:
@@ -79,7 +79,7 @@ public:
   static std::string getCppVersion();
 };
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud
 
 #endif

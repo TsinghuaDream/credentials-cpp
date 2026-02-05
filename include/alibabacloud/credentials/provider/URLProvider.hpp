@@ -1,15 +1,15 @@
-#ifndef ALIBABACLOUD_CREDENTIAL_URLPROVIDER_HPP_
-#define ALIBABACLOUD_CREDENTIAL_URLPROVIDER_HPP_
+#ifndef ALIBABACLOUD_CREDENTIALS_URLPROVIDER_HPP_
+#define ALIBABACLOUD_CREDENTIALS_URLPROVIDER_HPP_
 
 #include <string>
 
-#include <alibabacloud/credential/Exception.hpp>
-#include <alibabacloud/credential/Constant.hpp>
-#include <alibabacloud/credential/Model.hpp>
-#include <alibabacloud/credential/provider/NeedFreshProvider.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
+#include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/provider/NeedFreshProvider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 class URLProvider : public NeedFreshProvider,
                     std::enable_shared_from_this<URLProvider> {
@@ -45,7 +45,7 @@ protected:
   int64_t readTimeout_ = 5000;      // Read timeout in milliseconds
 };
 
-} // namespace Credential
+} // namespace Credentials
 
 } // namespace AlibabaCloud
 

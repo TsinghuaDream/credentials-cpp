@@ -1,16 +1,16 @@
 #include <gtest/gtest.h>
-#include <alibabacloud/credential/provider/EcsRamRoleProvider.hpp>
-#include <alibabacloud/credential/provider/RamRoleArnProvider.hpp>
-#include <alibabacloud/credential/provider/OIDCRoleArnProvider.hpp>
-#include <alibabacloud/credential/provider/RsaKeyPairProvider.hpp>
-#include <alibabacloud/credential/provider/CloudSSOCredentialsProvider.hpp>
-#include <alibabacloud/credential/provider/OAuthCredentialsProvider.hpp>
-#include <alibabacloud/credential/provider/URLProvider.hpp>
-#include <alibabacloud/credential/provider/NeedFreshProvider.hpp>
-#include <alibabacloud/credential/Constant.hpp>
+#include <alibabacloud/credentials/provider/EcsRamRoleProvider.hpp>
+#include <alibabacloud/credentials/provider/RamRoleArnProvider.hpp>
+#include <alibabacloud/credentials/provider/OIDCRoleArnProvider.hpp>
+#include <alibabacloud/credentials/provider/RsaKeyPairProvider.hpp>
+#include <alibabacloud/credentials/provider/CloudSSOCredentialsProvider.hpp>
+#include <alibabacloud/credentials/provider/OAuthCredentialsProvider.hpp>
+#include <alibabacloud/credentials/provider/URLProvider.hpp>
+#include <alibabacloud/credentials/provider/NeedFreshProvider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
 #include <fstream>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 // ==================== EcsRamRoleProvider Tests ====================
 

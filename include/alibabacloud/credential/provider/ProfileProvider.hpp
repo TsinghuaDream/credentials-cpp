@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include <darabonba/Exception.hpp>
+#include <alibabacloud/credential/Exception.hpp>
 
 #include <alibabacloud/credential/provider/Provider.hpp>
 namespace AlibabaCloud {
@@ -14,7 +14,7 @@ public:
   virtual Models::CredentialModel &getCredential() override {
     provider_ = createProvider();
     if (provider_ == nullptr) {
-      throw Darabonba::Exception("Can't create the ProfileProvider.");
+      throw CredentialException(std::string("Can't create the ProfileProvider."));
     }
     return provider_->getCredential();
   }
@@ -22,7 +22,7 @@ public:
   virtual const Models::CredentialModel &getCredential() const override {
     provider_ = createProvider();
     if (provider_ == nullptr) {
-      throw Darabonba::Exception("Can't create the ProfileProvider.");
+      throw CredentialException(std::string("Can't create the ProfileProvider."));
     }
     return provider_->getCredential();
   }
@@ -33,7 +33,7 @@ public:
   std::string getProviderName() const override {
     provider_ = createProvider();
     if (provider_ == nullptr) {
-      throw Darabonba::Exception("Can't create the ProfileProvider.");
+      throw CredentialException(std::string("Can't create the ProfileProvider."));
     }
     return provider_->getProviderName();
   }

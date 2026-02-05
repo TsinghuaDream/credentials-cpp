@@ -1,8 +1,6 @@
 #ifndef ALIBABACLOUD_CREDENTIAL_AUTHUTIL_HPP_
 #define ALIBABACLOUD_CREDENTIAL_AUTHUTIL_HPP_
 
-#include <atomic>
-#include <memory>
 #include <string>
 
 namespace Darabonba {
@@ -17,7 +15,14 @@ namespace Credential {
 
 class AuthUtil {
 public:
-  static bool setClientType(const std::string &type);
+  /**
+   * @brief Get client type from environment variable
+   * 
+   * Reads ALIBABA_CLOUD_PROFILE environment variable each time it's called.
+   * Returns "default" if the environment variable is not set or empty.
+   * 
+   * @return Client type string
+   */
   static std::string clientType();
   
   // Generate default session name: "credentials-cpp-{timestamp}"
@@ -72,9 +77,6 @@ public:
    * @return C++ version (e.g., "11", "14", "17", "20")
    */
   static std::string getCppVersion();
-  
-protected:
-  static std::string clientType_;
 };
 
 } // namespace Credential

@@ -12,7 +12,6 @@ static inline int unsetenv(const char* name) {
 #endif
 
 #include <alibabacloud/credential/Constant.hpp>
-#include <darabonba/Exception.hpp>
 #include <fstream>
 
 using namespace AlibabaCloud::Credential;
@@ -55,20 +54,7 @@ protected:
   std::map<std::string, std::string> savedEnv_;
 };
 
-static inline void SetEnvKV(const char* k, const char* v){
-#if defined(_WIN32) || defined(_WIN64)
-  _putenv_s(k, v);
-#else
-  setenv(k, v, 1);
-#endif
-}
-static inline void UnsetEnvK(const char* k){
-#if defined(_WIN32) || defined(_WIN64)
-  _putenv_s(k, "");
-#else
-  unsetenv(k);
-#endif
-}
+// Remove unused static functions - they are not used in any tests
 
 TEST_F(CLIProfileProviderTest, DefaultConstructor) {
   // Should use default profile name "default"
@@ -101,7 +87,7 @@ TEST_F(CLIProfileProviderTest, GetCredentialWithoutValidConfig) {
   
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 TEST_F(CLIProfileProviderTest, MultipleProfileInstances) {
@@ -117,7 +103,7 @@ TEST_F(CLIProfileProviderTest, ConstGetCredential) {
   
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 TEST_F(CLIProfileProviderTest, ProfileNamePreserved) {
@@ -128,7 +114,7 @@ TEST_F(CLIProfileProviderTest, ProfileNamePreserved) {
   // Even though it will fail, it should try to use the correct profile
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 TEST_F(CLIProfileProviderTest, UsesEnvironmentVariableForPath) {
@@ -140,7 +126,7 @@ TEST_F(CLIProfileProviderTest, UsesEnvironmentVariableForPath) {
   // Should try to read from the specified path
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 TEST_F(CLIProfileProviderTest, SupportsMultipleGetCredentialCalls) {
@@ -149,9 +135,9 @@ TEST_F(CLIProfileProviderTest, SupportsMultipleGetCredentialCalls) {
   // Multiple calls should behave consistently
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
   
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }

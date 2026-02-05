@@ -1,7 +1,7 @@
 #include <fstream>
 
 #include <darabonba/Env.hpp>
-#include <darabonba/Exception.hpp>
+#include <alibabacloud/credential/Exception.hpp>
 #include <darabonba/Ini.hpp>
 
 #include <alibabacloud/credential/AuthUtil.hpp>
@@ -27,13 +27,8 @@ static std::string getProfilePath() {
   if (home.back() != sep) {
     home.push_back(sep);
   }
-  // Support both .aliyun/config.json (new) and .alibabaclouds.ini (legacy)
-  std::string newPath = home + ".aliyun" + sep + "config.json";
-  std::ifstream testFile(newPath);
-  if (testFile.good()) {
-    return newPath;
-  }
-  return home + ".alibabaclouds.ini";
+  // Use Java-compatible path: ~/.alibabacloud/credentials
+  return home + ".alibabacloud" + sep + "credentials";
 }
 
 namespace AlibabaCloud {
@@ -43,11 +38,11 @@ std::unique_ptr<Provider> ProfileProvider::createProvider() {
   auto filePath = Darabonba::Env::getEnv("ALIBABA_CLOUD_CREDENTIALS_FILE",
                                          getProfilePath());
   if (filePath.empty()) {
-    throw Darabonba::Exception("No credential profile.");
+    throw CredentialException(std::string("No credential profile."));
   }
   std::ifstream ifs(filePath);
   if (!ifs.good()) {
-    throw Darabonba::Exception("Can't open credential profile: " + filePath);
+    throw CredentialException(std::string("Can't open credential profile: ") + filePath);
   }
   auto iniObj = Darabonba::Ini::parse(ifs);
   // parse ini object into config
@@ -58,7 +53,7 @@ std::unique_ptr<Provider> ProfileProvider::createProvider() {
 
   const auto &enable = iniObj.get(sectionName, Constant::INI_ENABLE);
   if (enable != "true") {
-    throw Darabonba::Exception("The enable option in " + sectionName +
+    throw CredentialException("The enable option in " + sectionName +
                                " is not equal to true.");
   }
   const auto &section = iniObj.get(sectionName);
@@ -100,7 +95,7 @@ std::unique_ptr<Provider> ProfileProvider::createProvider() {
 
   auto configType = config->getType();
   if (configType.empty()) {
-    throw Darabonba::Exception("The configured client type is empty");
+    throw CredentialException(std::string("The configured client type is empty"));
   }
   if (configType == Constant::ECS_RAM_ROLE) {
     return std::unique_ptr<Provider>(new EcsRamRoleProvider(config));

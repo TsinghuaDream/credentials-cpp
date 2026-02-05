@@ -102,7 +102,7 @@ TEST_F(ProfileProviderTest, NonExistentProfileThrows) {
   // Should throw when trying to get credential from non-existent/invalid profile
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 // Test that provider can handle different credential types from profile

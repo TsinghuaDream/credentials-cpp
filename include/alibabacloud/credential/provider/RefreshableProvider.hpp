@@ -61,24 +61,56 @@ class PrefetchStrategy {
 public:
   virtual ~PrefetchStrategy() = default;
   virtual void prefetch(std::function<void()> action) = 0;
+  virtual void close() {}  // Clean up resources
 };
 
 /**
  * @brief Non-blocking prefetch strategy (async refresh in background thread)
+ * 
+ * Uses a managed thread that can be properly shutdown.
  */
 class NonBlockingPrefetch : public PrefetchStrategy {
 public:
+  NonBlockingPrefetch() : shutdown_(false) {}
+  
+  ~NonBlockingPrefetch() override {
+    close();
+  }
+  
   void prefetch(std::function<void()> action) override {
-    // Execute refresh in detached thread
-    std::thread([action]() {
+    if (shutdown_.load()) {
+      return;
+    }
+    
+    // Wait for any previous async task to complete
+    if (asyncThread_.joinable()) {
+      asyncThread_.join();
+    }
+    
+    // Start new async task
+    asyncThread_ = std::thread([this, action]() {
+      if (shutdown_.load()) {
+        return;
+      }
       try {
         action();
       } catch (const std::exception& e) {
         // Log error but don't throw exception
         std::cerr << "NonBlockingPrefetch error: " << e.what() << std::endl;
       }
-    }).detach();
+    });
   }
+  
+  void close() override {
+    shutdown_.store(true);
+    if (asyncThread_.joinable()) {
+      asyncThread_.join();
+    }
+  }
+
+private:
+  std::atomic<bool> shutdown_;
+  std::thread asyncThread_;
 };
 
 /**
@@ -88,6 +120,10 @@ class OneCallerBlocksPrefetch : public PrefetchStrategy {
 public:
   void prefetch(std::function<void()> action) override {
     action();  // Synchronous execution
+  }
+  
+  void close() override {
+    // Nothing to clean up for synchronous strategy
   }
 };
 
@@ -124,7 +160,7 @@ public:
         cachedValue_(nullptr) {}
 
   virtual ~RefreshableProvider() {
-    shutdown();
+    close();
   }
 
   /**
@@ -142,8 +178,14 @@ public:
       // Cache expired, synchronous refresh
       refreshCache();
     } else if (shouldInitiateCachePrefetch()) {
-      // About to expire, async prefetch refresh
-      prefetchCache();
+      // About to expire, check if async refresh is enabled
+      if (isAsyncUpdateEnabled()) {
+        // Async prefetch refresh (only if enabled)
+        prefetchCache();
+      } else {
+        // Synchronous refresh (if async is disabled)
+        refreshCache();
+      }
     }
     
     if (!cachedValue_) {
@@ -160,6 +202,14 @@ protected:
    * @return RefreshResult containing new credential and expiration time
    */
   virtual RefreshResult doRefresh() const = 0;
+
+  /**
+   * @brief Check if async update is enabled (to be overridden by subclasses)
+   * 
+   * Default implementation returns true for backward compatibility.
+   * Subclasses like EcsRamRoleProvider should override this method.
+   */
+  virtual bool isAsyncUpdateEnabled() const { return true; }
 
   /**
    * @brief Time utility: convert GMT time string to timestamp
@@ -355,10 +405,18 @@ private:
   }
 
   /**
-   * @brief Stop background refresh
+   * @brief Close and clean up resources
+   * 
+   * This method should be called before the provider is destroyed
+   * to ensure any background threads are properly stopped.
+   * Same as Java SDK's close() method.
    */
-  void shutdown() {
-    // Clean up resources
+  void close() {
+    if (prefetchStrategy_) {
+      prefetchStrategy_->close();
+    }
+    // Clear cached value
+    cachedValue_ = nullptr;
   }
 
 private:

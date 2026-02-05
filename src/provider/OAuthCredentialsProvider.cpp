@@ -1,4 +1,5 @@
 #include <alibabacloud/credential/AuthUtil.hpp>
+#include <alibabacloud/credential/Exception.hpp>
 #include <alibabacloud/credential/provider/OAuthCredentialsProvider.hpp>
 #include <darabonba/Core.hpp>
 #include <darabonba/encode/Encoder.hpp>
@@ -64,7 +65,7 @@ bool OAuthCredentialsProvider::refreshCredential() const {
   auto resp = future.get();
 
   if (resp->getStatusCode() != 200) {
-    throw Darabonba::Exception(OAUTH_FETCH_ERROR_MSG + " Status code is " +
+    throw CredentialException(OAUTH_FETCH_ERROR_MSG + " Status code is " +
                                std::to_string(resp->getStatusCode()) +
                                ". Body is " +
                                Darabonba::Stream::readAsString(resp->getBody()));
@@ -73,7 +74,7 @@ bool OAuthCredentialsProvider::refreshCredential() const {
   auto result = Darabonba::Stream::readAsJSON(resp->getBody());
 
   if (result.contains("error")) {
-    throw Darabonba::Exception(
+    throw CredentialException(
         OAUTH_FETCH_ERROR_MSG +
         " Error: " + result["error"].get<std::string>() +
         (result.contains("error_description")

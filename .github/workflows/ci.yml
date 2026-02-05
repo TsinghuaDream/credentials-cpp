@@ -224,27 +224,6 @@ jobs:
         fail_ci_if_error: false
         token: ${{ secrets.CODECOV_TOKEN }}
 
-  # ============ 代码格式检查 ============
-  format-check:
-    name: Code Format Check
-    runs-on: ubuntu-22.04
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Install clang-format
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y clang-format
-    
-    - name: Check code format
-      run: |
-        # 检查所有 C++ 源文件格式
-        find include src tests -name '*.hpp' -o -name '*.cpp' | \
-          xargs clang-format --dry-run --Werror || true
-        echo "Format check completed (non-blocking)"
-
   # ============ 构建状态汇总 ============
   build-status:
     name: Build Status

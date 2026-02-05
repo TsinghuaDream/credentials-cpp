@@ -41,7 +41,7 @@ TEST(EdgeCasesTest, VeryLongAccessKeyId) {
   auto credential = provider.getCredential();
   
   EXPECT_EQ(longAk, credential.getAccessKeyId());
-  EXPECT_EQ(10000, credential.getAccessKeyId().length());
+  EXPECT_EQ(10000u, credential.getAccessKeyId().length());
 }
 
 TEST(EdgeCasesTest, VeryLongAccessKeySecret) {

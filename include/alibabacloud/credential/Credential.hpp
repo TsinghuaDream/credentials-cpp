@@ -53,25 +53,61 @@ public:
     return provider_ == nullptr;
   }
 
-  // Deprecated: use getCredentials() to avoid AK/SK misalignment due to refresh
+  /**
+   * @deprecated Use getCredential() to avoid AK/SK misalignment due to refresh
+   * @brief Get access key ID (deprecated method)
+   */
   std::string getAccessKeyId() {
     return provider_->getCredential().getAccessKeyId();
   };
+
+  /**
+   * @deprecated Use getCredential() to avoid AK/SK misalignment due to refresh
+   * @brief Get access key secret (deprecated method)
+   */
   std::string getAccessKeySecret() {
     return provider_->getCredential().getAccessKeySecret();
   }
+
+  /**
+   * @deprecated Use getCredential() to avoid AK/SK misalignment due to refresh
+   * @brief Get security token (deprecated method)
+   */
   std::string getSecurityToken() {
     return provider_->getCredential().getSecurityToken();
   }
+
+  /**
+   * @deprecated Use getCredential() to avoid AK/SK misalignment due to refresh
+   * @brief Get bearer token (deprecated method)
+   */
   std::string getBearerToken() {
     return provider_->getCredential().getBearerToken();
   }
+
+  /**
+   * @deprecated Use getCredential() to avoid AK/SK misalignment due to refresh
+   * @brief Get credential type (deprecated method)
+   */
   std::string getType() { return provider_->getProviderName(); }
 
   /**
+   * @brief Get credential model (recommended method)
    * @note Return a copy to avoid inconsistencies
+   * @return CredentialModel containing all credential information
    */
-  Models::CredentialModel getCredential() const { return provider_->getCredential(); }
+  Models::CredentialModel getCredential() const { 
+    return provider_->getCredential(); 
+  }
+
+
+  /**
+   * @brief Get provider name
+   * @return Provider name string
+   */
+  std::string getProviderName() const {
+    return provider_->getProviderName();
+  }
 
 private:
   static std::shared_ptr<Provider> makeProvider(std::shared_ptr<Models::Config> config);

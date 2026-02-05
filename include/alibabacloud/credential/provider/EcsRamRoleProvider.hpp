@@ -69,6 +69,17 @@ public:
    */
   std::string getProviderName() const override { return Constant::ECS_RAM_ROLE; }
 
+  /**
+   * @brief Check if async credential update is enabled (corresponds to Java isAsyncCredentialUpdateEnabled)
+   */
+  bool isAsyncCredentialUpdateEnabled() const { return asyncUpdateEnabled_; }
+
+protected:
+  /**
+   * @brief Override RefreshableProvider's isAsyncUpdateEnabled to use our setting
+   */
+  bool isAsyncUpdateEnabled() const override { return asyncUpdateEnabled_; }
+
 protected:
   /**
    * @brief Implement credential refresh logic (corresponds to Python _refresh_credentials)
@@ -117,7 +128,7 @@ private:
   mutable std::string roleName_;           // Role name
   mutable bool disableIMDSv1_;             // Disable IMDSv1
   mutable std::atomic<bool> shouldRefresh_; // Refresh flag (corresponds to Python _should_refresh)
-  bool asyncUpdateEnabled_;                 // Enable async update
+  bool asyncUpdateEnabled_;                 // Enable async update (corresponds to Java asyncCredentialUpdateEnabled)
   int64_t connectTimeout_;                  // Connection timeout
   int64_t readTimeout_;                     // Read timeout
 };

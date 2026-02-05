@@ -160,6 +160,8 @@ public:
     DARABONBA_PTR_TO_JSON(timeout, timeout_);
     DARABONBA_PTR_TO_JSON(connectTimeout, connectTimeout_);
     DARABONBA_PTR_TO_JSON(disableIMDSv1, disableIMDSv1_);
+    DARABONBA_PTR_TO_JSON(enableIMDSv2, enableIMDSv2_);
+    DARABONBA_PTR_TO_JSON(metadataTokenDuration, metadataTokenDuration_);
     DARABONBA_PTR_TO_JSON(reuseLastProviderEnabled, reuseLastProviderEnabled_);
   };
   friend void from_json(const Darabonba::Json &j, Config &obj) {
@@ -190,6 +192,8 @@ public:
     DARABONBA_PTR_FROM_JSON(timeout, timeout_);
     DARABONBA_PTR_FROM_JSON(connectTimeout, connectTimeout_);
     DARABONBA_PTR_FROM_JSON(disableIMDSv1, disableIMDSv1_);
+    DARABONBA_PTR_FROM_JSON(enableIMDSv2, enableIMDSv2_);
+    DARABONBA_PTR_FROM_JSON(metadataTokenDuration, metadataTokenDuration_);
     DARABONBA_PTR_FROM_JSON(reuseLastProviderEnabled,
                             reuseLastProviderEnabled_);
   };
@@ -228,6 +232,8 @@ public:
            this->enableVpc_ == nullptr && this->timeout_ == nullptr &&
            this->connectTimeout_ == nullptr &&
            this->disableIMDSv1_ == nullptr &&
+           this->enableIMDSv2_ == nullptr &&
+           this->metadataTokenDuration_ == nullptr &&
            this->reuseLastProviderEnabled_ == nullptr;
   };
   // accessKeyId Field Functions
@@ -502,6 +508,26 @@ public:
     DARABONBA_PTR_SET_VALUE(reuseLastProviderEnabled_, reuseLastProviderEnabled)
   };
 
+  // enableIMDSv2 Field Functions (aligned with Python version)
+  bool hasEnableIMDSv2() const { return this->enableIMDSv2_ != nullptr; };
+  void deleteEnableIMDSv2() { this->enableIMDSv2_ = nullptr; };
+  inline bool getEnableIMDSv2() const {
+    DARABONBA_PTR_GET_DEFAULT(enableIMDSv2_, false)
+  };
+  inline Config &setEnableIMDSv2(bool enableIMDSv2) {
+    DARABONBA_PTR_SET_VALUE(enableIMDSv2_, enableIMDSv2)
+  };
+
+  // metadataTokenDuration Field Functions (aligned with Python version)
+  bool hasMetadataTokenDuration() const { return this->metadataTokenDuration_ != nullptr; };
+  void deleteMetadataTokenDuration() { this->metadataTokenDuration_ = nullptr; };
+  inline int64_t getMetadataTokenDuration() const {
+    DARABONBA_PTR_GET_DEFAULT(metadataTokenDuration_, 21600)  // 6 hours default
+  };
+  inline Config &setMetadataTokenDuration(int64_t metadataTokenDuration) {
+    DARABONBA_PTR_SET_VALUE(metadataTokenDuration_, metadataTokenDuration)
+  };
+
 protected:
   // accesskey id
   shared_ptr<string> accessKeyId_{};
@@ -557,6 +583,10 @@ protected:
   shared_ptr<int64_t> connectTimeout_ = make_shared<int64_t>(10000);
   // disable IMDSv1
   shared_ptr<bool> disableIMDSv1_ = make_shared<bool>(false);
+  // enable IMDSv2 (aligned with Python version)
+  shared_ptr<bool> enableIMDSv2_ = make_shared<bool>(false);
+  // metadata token duration (aligned with Python version)
+  shared_ptr<int64_t> metadataTokenDuration_ = make_shared<int64_t>(21600);
   // reuse last provider enabled
   shared_ptr<bool> reuseLastProviderEnabled_ = make_shared<bool>(false);
 };

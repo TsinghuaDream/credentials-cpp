@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include <darabonba/Exception.hpp>
+#include <alibabacloud/credential/Exception.hpp>
 
 #include <alibabacloud/credential/Model.hpp>
 #include <alibabacloud/credential/provider/Provider.hpp>
@@ -23,7 +23,7 @@ public:
     if (reuseLastProviderEnabled_ && lastSuccessfulProvider_) {
       try {
         return lastSuccessfulProvider_->getCredential();
-      } catch (Darabonba::Exception&) {
+      } catch (CredentialException&) {
         // Cache failed, continue trying all providers
         lastSuccessfulProvider_ = nullptr;
       }
@@ -37,12 +37,12 @@ public:
             lastSuccessfulProvider_ = provider.get();
           }
           return credential;
-        } catch (Darabonba::Exception& e) {
+        } catch (CredentialException& e) {
           continue;
         }
       }
     }
-    throw Darabonba::Exception("Can't get the credential.");
+    throw CredentialException(std::string("Can't get the credential."));
   }
   
   virtual const Models::CredentialModel &getCredential() const override {
@@ -50,7 +50,7 @@ public:
     if (reuseLastProviderEnabled_ && lastSuccessfulProvider_) {
       try {
         return lastSuccessfulProvider_->getCredential();
-      } catch (Darabonba::Exception&) {
+      } catch (CredentialException&) {
         // Cache failed, continue trying all providers
         lastSuccessfulProvider_ = nullptr;
       }
@@ -64,12 +64,12 @@ public:
             lastSuccessfulProvider_ = provider.get();
           }
           return credential;
-        } catch (Darabonba::Exception& e) {
+        } catch (CredentialException& e) {
           continue;
         }
       }
     }
-    throw Darabonba::Exception("Can't get the credential.");
+    throw CredentialException(std::string("Can't get the credential."));
   }
   
   /**
@@ -80,7 +80,7 @@ public:
     if (reuseLastProviderEnabled_ && lastSuccessfulProvider_) {
       try {
         return lastSuccessfulProvider_->getProviderName();
-      } catch (Darabonba::Exception&) {
+      } catch (CredentialException&) {
         // Cache failed, continue trying all providers
         lastSuccessfulProvider_ = nullptr;
       }
@@ -94,12 +94,12 @@ public:
             lastSuccessfulProvider_ = provider.get();
           }
           return name;
-        } catch (Darabonba::Exception& e) {
+        } catch (CredentialException& e) {
           continue;
         }
       }
     }
-    throw Darabonba::Exception("Can't get the provider name.");
+    throw CredentialException(std::string("Can't get the provider name."));
   }
 
 protected:

@@ -121,25 +121,19 @@ git clone https://github.com/aliyun/credentials-cpp.git
    - 在"生成"->"配置管理器"中勾选 INSTALL
    - 生成 -> 生成解决方案
 
-### 命令行构建（跨平台）
+### 快速构建
 
 ```bash
-# 配置项目
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-
-# 构建
-cmake --build build --config Release
-
-# 安装（Linux/macOS 可能需要 sudo）
-cmake --install build
+# 克隆并构建
+git clone https://github.com/aliyun/credentials-cpp.git
+cd credentials-cpp
+mkdir build && cd build
+cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release
+cmake --build . --config Release
+cmake --install .
 ```
 
-**构建选项：**
-
-| 选项 | 默认值 | 说明 |
-|------|--------|------|
-| `BUILD_SHARED_LIBS` | ON | 构建共享库 |
-| `ENABLE_UNIT_TESTS` | OFF | 启用单元测试 |
+**📖 详细构建说明请参考 [BUILD.md](BUILD.md) | [BUILD-zh-CN.md](BUILD-zh-CN.md)**
 
 ## 快速使用
 

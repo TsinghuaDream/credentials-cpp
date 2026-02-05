@@ -106,7 +106,7 @@ TEST_F(EnvironmentVariableProviderTest, MissingAccessKeyId) {
   
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 TEST_F(EnvironmentVariableProviderTest, MissingAccessKeySecret) {
@@ -117,7 +117,7 @@ TEST_F(EnvironmentVariableProviderTest, MissingAccessKeySecret) {
   
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 TEST_F(EnvironmentVariableProviderTest, EmptyAccessKeyId) {
@@ -128,7 +128,7 @@ TEST_F(EnvironmentVariableProviderTest, EmptyAccessKeyId) {
   
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 TEST_F(EnvironmentVariableProviderTest, EmptyAccessKeySecret) {
@@ -139,7 +139,7 @@ TEST_F(EnvironmentVariableProviderTest, EmptyAccessKeySecret) {
   
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 TEST_F(EnvironmentVariableProviderTest, SecurityTokenOptional) {

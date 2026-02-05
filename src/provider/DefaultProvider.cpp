@@ -1,7 +1,8 @@
 #include <darabonba/Env.hpp>
-#include <darabonba/Exception.hpp>
+#include <alibabacloud/credential/Exception.hpp>
 
 #include <alibabacloud/credential/provider/DefaultProvider.hpp>
+#include <alibabacloud/credential/provider/CLIProfileProvider.hpp>
 #include <alibabacloud/credential/provider/EcsRamRoleProvider.hpp>
 #include <alibabacloud/credential/provider/EnvironmentVariableProvider.hpp>
 #include <alibabacloud/credential/provider/OIDCRoleArnProvider.hpp>
@@ -24,6 +25,9 @@ DefaultProvider::DefaultProvider() {
     providers_.emplace_back(new OIDCRoleArnProvider(
         roleArn, oidcProviderArn, oidcTokenFile, roleSessionName));
   }
+
+  // Add CLIProfileProvider to match Java implementation
+  providers_.emplace_back(new CLIProfileProvider());
 
   providers_.emplace_back(new ProfileProvider());
 
@@ -59,6 +63,9 @@ DefaultProvider::DefaultProvider(std::shared_ptr<Models::Config> config)
     providers_.emplace_back(new OIDCRoleArnProvider(
         roleArn, oidcProviderArn, oidcTokenFile, roleSessionName));
   }
+
+  // Add CLIProfileProvider to match Java implementation
+  providers_.emplace_back(new CLIProfileProvider());
 
   providers_.emplace_back(new ProfileProvider());
 

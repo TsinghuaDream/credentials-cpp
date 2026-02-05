@@ -121,25 +121,19 @@ git clone https://github.com/aliyun/credentials-cpp.git
    - Check INSTALL option from Build -> Configuration Manager
    - Build -> Build Solution
 
-### Command Line Build (Cross-platform)
+### Quick Build
 
 ```bash
-# Configure the project
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-
-# Build
-cmake --build build --config Release
-
-# Install (may require sudo on Linux/macOS)
-cmake --install build
+# Clone and build
+git clone https://github.com/aliyun/credentials-cpp.git
+cd credentials-cpp
+mkdir build && cd build
+cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release
+cmake --build . --config Release
+cmake --install .
 ```
 
-**Build Options:**
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `BUILD_SHARED_LIBS` | ON | Build shared libraries |
-| `ENABLE_UNIT_TESTS` | OFF | Enable unit tests |
+**📖 For detailed build instructions, see [BUILD.md](BUILD.md) | [BUILD-zh-CN.md](BUILD-zh-CN.md)**
 
 ## Quick Examples
 

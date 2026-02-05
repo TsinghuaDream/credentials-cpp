@@ -27,7 +27,7 @@ TEST(URLProviderTest, ConstructorWithURL) {
 TEST(URLProviderTest, ConstructorWithEmptyURL) {
   EXPECT_THROW({
     URLProvider provider("");
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 TEST(URLProviderTest, ProviderType) {

@@ -29,13 +29,7 @@ static inline void env_set_kv(const char* k, const char* v, int overwrite = 1){
   setenv(k, v, overwrite);
 #endif
 }
-static inline void env_unset_k(const char* k){
-#if defined(_WIN32) || defined(_WIN64)
-  _putenv_s(k, "");
-#else
-  unsetenv(k);
-#endif
-}
+// Remove unused static function - it is not used in any tests
 
 // ==================== EcsRamRole Provider Comprehensive Tests ====================
 

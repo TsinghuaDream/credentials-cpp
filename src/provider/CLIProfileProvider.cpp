@@ -7,15 +7,13 @@
 #include <alibabacloud/credential/provider/RamRoleArnProvider.hpp>
 #include <alibabacloud/credential/provider/RsaKeyPairProvider.hpp>
 #include <darabonba/Env.hpp>
-#include <darabonba/Exception.hpp>
+#include <alibabacloud/credential/Exception.hpp>
 #include <darabonba/Ini.hpp>
 #include <fstream>
 
 // JSON support is optional
-#ifdef HAS_NLOHMANN_JSON
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
-#endif
 
 namespace AlibabaCloud {
 namespace Credential {
@@ -83,7 +81,6 @@ std::string CLIProfileProvider::getCliProfilePath() {
  * @brief 检查文件是否为 JSON 格式
  */
 static bool isJsonFile(const std::string &filePath) {
-#ifdef HAS_NLOHMANN_JSON
   // 通过扩展名判断
   if (filePath.size() >= 5 && filePath.substr(filePath.size() - 5) == ".json") {
     return true;
@@ -100,10 +97,6 @@ static bool isJsonFile(const std::string &filePath) {
   ifs.close();
 
   return firstChar == '{' || firstChar == '[';
-#else
-  // 没有 JSON 支持，始终返回 false
-  return false;
-#endif
 }
 
 /**
@@ -112,30 +105,28 @@ static bool isJsonFile(const std::string &filePath) {
 std::shared_ptr<Models::Config>
 CLIProfileProvider::parseJsonProfile(const std::string &filePath,
                                      const std::string &profileName) {
-
-#ifdef HAS_NLOHMANN_JSON
   std::ifstream ifs(filePath);
   if (!ifs.good()) {
-    throw Darabonba::Exception("Can't open CLI profile file: " + filePath);
+    throw CredentialException("Can't open CLI profile file: " + filePath);
   }
 
   json profilesJson;
   try {
     ifs >> profilesJson;
   } catch (const json::exception &e) {
-    throw Darabonba::Exception("Failed to parse JSON profile: " +
+    throw CredentialException("Failed to parse JSON profile: " +
                                std::string(e.what()));
   }
   ifs.close();
 
   // 查找指定的 profile
   if (!profilesJson.contains("profiles")) {
-    throw Darabonba::Exception("No 'profiles' section in CLI config file");
+    throw CredentialException(std::string("No 'profiles' section in CLI config file"));
   }
 
   json profiles = profilesJson["profiles"];
   if (!profiles.is_array()) {
-    throw Darabonba::Exception("'profiles' must be an array");
+    throw CredentialException(std::string("'profiles' must be an array"));
   }
 
   // 查找匹配的 profile
@@ -150,7 +141,7 @@ CLIProfileProvider::parseJsonProfile(const std::string &filePath,
   }
 
   if (!found) {
-    throw Darabonba::Exception("Profile '" + profileName +
+    throw CredentialException("Profile '" + profileName +
                                "' not found in CLI config");
   }
 
@@ -206,10 +197,6 @@ CLIProfileProvider::parseJsonProfile(const std::string &filePath,
   }
 
   return config;
-#else
-  throw Darabonba::Exception("JSON format is not supported. Please install "
-                             "nlohmann_json library or use INI format.");
-#endif
 }
 
 /**
@@ -221,7 +208,7 @@ CLIProfileProvider::parseIniProfile(const std::string &filePath,
 
   std::ifstream ifs(filePath);
   if (!ifs.good()) {
-    throw Darabonba::Exception("Can't open CLI profile file: " + filePath);
+    throw CredentialException("Can't open CLI profile file: " + filePath);
   }
 
   auto iniObj = Darabonba::Ini::parse(ifs);
@@ -230,7 +217,7 @@ CLIProfileProvider::parseIniProfile(const std::string &filePath,
   // 检查 enable 选项
   const auto &enable = iniObj.get(profileName, Constant::INI_ENABLE);
   if (enable != "true") {
-    throw Darabonba::Exception("The enable option in '" + profileName +
+    throw CredentialException("The enable option in '" + profileName +
                                "' is not equal to true.");
   }
 
@@ -293,8 +280,8 @@ CLIProfileProvider::CLIProfileProvider()
   std::string disabled =
       Darabonba::Env::getEnv(Constant::ENV_CLI_PROFILE_DISABLED);
   if (disabled == "true" || disabled == "TRUE" || disabled == "1") {
-    throw Darabonba::Exception("CLI Profile is disabled by environment "
-                               "variable ALIBABA_CLOUD_CLI_PROFILE_DISABLED");
+    throw CredentialException(std::string("CLI Profile is disabled by environment "
+                               "variable ALIBABA_CLOUD_CLI_PROFILE_DISABLED"));
   }
 }
 
@@ -304,8 +291,8 @@ CLIProfileProvider::CLIProfileProvider(const std::string &profileName)
   std::string disabled =
       Darabonba::Env::getEnv(Constant::ENV_CLI_PROFILE_DISABLED);
   if (disabled == "true" || disabled == "TRUE" || disabled == "1") {
-    throw Darabonba::Exception("CLI Profile is disabled by environment "
-                               "variable ALIBABA_CLOUD_CLI_PROFILE_DISABLED");
+    throw CredentialException(std::string("CLI Profile is disabled by environment "
+                               "variable ALIBABA_CLOUD_CLI_PROFILE_DISABLED"));
   }
 }
 
@@ -313,7 +300,7 @@ CLIProfileProvider::CLIProfileProvider(const std::string &profileName)
 Models::CredentialModel &CLIProfileProvider::getCredential() {
   provider_ = createProvider();
   if (provider_ == nullptr) {
-    throw Darabonba::Exception("Can't create provider from CLI profile.");
+    throw CredentialException(std::string("Can't create provider from CLI profile."));
   }
   return provider_->getCredential();
 }
@@ -321,7 +308,7 @@ Models::CredentialModel &CLIProfileProvider::getCredential() {
 const Models::CredentialModel &CLIProfileProvider::getCredential() const {
   provider_ = createProvider();
   if (provider_ == nullptr) {
-    throw Darabonba::Exception("Can't create provider from CLI profile.");
+    throw CredentialException(std::string("Can't create provider from CLI profile."));
   }
   return provider_->getCredential();
 }
@@ -332,7 +319,7 @@ const Models::CredentialModel &CLIProfileProvider::getCredential() const {
 std::string CLIProfileProvider::getProviderName() const {
   provider_ = createProvider();
   if (provider_ == nullptr) {
-    throw Darabonba::Exception("Can't create provider from CLI profile.");
+    throw CredentialException(std::string("Can't create provider from CLI profile."));
   }
   return provider_->getProviderName();
 }
@@ -344,7 +331,7 @@ std::unique_ptr<Provider> CLIProfileProvider::createProvider() const {
   // 获取配置文件路径
   std::string filePath = getCliProfilePath();
   if (filePath.empty()) {
-    throw Darabonba::Exception("No CLI profile file found.");
+    throw CredentialException(std::string("No CLI profile file found."));
   }
 
   // 解析配置文件
@@ -357,15 +344,13 @@ std::unique_ptr<Provider> CLIProfileProvider::createProvider() const {
 
   // 根据类型创建对应的 Provider
   auto configType = config->getType();
-  if (configType.empty()) {
-    throw Darabonba::Exception("The configured client type is empty");
-  }
+    throw CredentialException(std::string("The configured client type is empty"));
 
   if (configType == Constant::ECS_RAM_ROLE) {
     return std::unique_ptr<Provider>(new EcsRamRoleProvider(config));
   } else if (configType == Constant::RSA_KEY_PAIR) {
     return std::unique_ptr<Provider>(new RsaKeyPairProvider(config));
-  } else if (configType == Constant::RAM_ROLE_ARN) {
+  }else if (configType == Constant::RAM_ROLE_ARN) {
     return std::unique_ptr<Provider>(new RamRoleArnProvider(config));
   } else if (configType == Constant::OIDC_ROLE_ARN) {
     return std::unique_ptr<Provider>(new OIDCRoleArnProvider(config));
@@ -375,7 +360,7 @@ std::unique_ptr<Provider> CLIProfileProvider::createProvider() const {
   const auto &accessKeyId = config->getAccessKeyId();
   const auto &accessKeySecret = config->getAccessKeySecret();
   if (accessKeyId.empty() || accessKeySecret.empty()) {
-    throw Darabonba::Exception("AccessKeyId and AccessKeySecret are required");
+    throw CredentialException(std::string("AccessKeyId and AccessKeySecret are required"));
   }
 
   return std::unique_ptr<Provider>(new AccessKeyProvider(config));

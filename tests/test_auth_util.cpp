@@ -55,37 +55,48 @@ TEST_F(AuthUtilTest, DefaultClientType) {
   EXPECT_FALSE(type.empty());
 }
 
-TEST_F(AuthUtilTest, SetAndGetClientType) {
-  AuthUtil::setClientType("test_client");
-  EXPECT_EQ("test_client", AuthUtil::clientType());
+TEST_F(AuthUtilTest, ClientTypeFromEnvironment) {
+  // Set environment variable
+#if defined(_WIN32) || defined(_WIN64)
+  _putenv_s("ALIBABA_CLOUD_PROFILE", "test_profile");
+#else
+  setenv("ALIBABA_CLOUD_PROFILE", "test_profile", 1);
+#endif
   
-  AuthUtil::setClientType("production");
-  EXPECT_EQ("production", AuthUtil::clientType());
+  // clientType() should read from environment each time
+  EXPECT_EQ("test_profile", AuthUtil::clientType());
+  
+  // Change environment variable
+#if defined(_WIN32) || defined(_WIN64)
+  _putenv_s("ALIBABA_CLOUD_PROFILE", "another_profile");
+#else
+  setenv("ALIBABA_CLOUD_PROFILE", "another_profile", 1);
+#endif
+  
+  // Should reflect the new value
+  EXPECT_EQ("another_profile", AuthUtil::clientType());
 }
 
-TEST_F(AuthUtilTest, SetClientTypeReturnsTrue) {
-  bool result = AuthUtil::setClientType("new_type");
-  EXPECT_TRUE(result);
-}
-
-TEST_F(AuthUtilTest, SetEmptyClientType) {
-  AuthUtil::setClientType("");
-  EXPECT_EQ("", AuthUtil::clientType());
-}
-
-TEST_F(AuthUtilTest, SetClientTypeWithSpecialCharacters) {
-  AuthUtil::setClientType("test-client_123");
-  EXPECT_EQ("test-client_123", AuthUtil::clientType());
+TEST_F(AuthUtilTest, ClientTypeDefaultWhenEmpty) {
+  // Clear environment variable
+#if defined(_WIN32) || defined(_WIN64)
+  _putenv_s("ALIBABA_CLOUD_PROFILE", "");
+#else
+  unsetenv("ALIBABA_CLOUD_PROFILE");
+#endif
+  
+  // Should return "default" when env var is not set
+  EXPECT_EQ("default", AuthUtil::clientType());
 }
 
 TEST_F(AuthUtilTest, GenerateSessionName) {
   std::string sessionName = AuthUtil::generateSessionName();
   
   // Should start with "credentials-cpp-"
-  EXPECT_EQ(0, sessionName.find("credentials-cpp-"));
+  EXPECT_EQ(0u, sessionName.find("credentials-cpp-"));
   
   // Should contain timestamp
-  EXPECT_GT(sessionName.length(), 16);
+  EXPECT_GT(sessionName.length(), 16u);
 }
 
 TEST_F(AuthUtilTest, GenerateSessionNameUnique) {
@@ -105,7 +116,7 @@ TEST_F(AuthUtilTest, GenerateSessionNameFormat) {
   
   // Should be in format: credentials-cpp-{timestamp}
   size_t dashPos = sessionName.find("credentials-cpp-");
-  EXPECT_EQ(0, dashPos);
+  EXPECT_EQ(0u, dashPos);
   
   // Extract timestamp part
   std::string timestampPart = sessionName.substr(16);
@@ -132,15 +143,14 @@ TEST_F(AuthUtilTest, MultipleSessionNamesIncreasing) {
 
 TEST_F(AuthUtilTest, ClientTypeThreadSafety) {
   // Test concurrent access to clientType
+  // Since clientType() now reads from environment each time,
+  // concurrent reads should be safe
   std::vector<std::thread> threads;
   
   for (int i = 0; i < 10; ++i) {
-    threads.emplace_back([i]() {
-      std::string type = "type_" + std::to_string(i);
-      AuthUtil::setClientType(type);
+    threads.emplace_back([]() {
       std::string result = AuthUtil::clientType();
-      // The result may or may not match due to race conditions
-      // But should not crash
+      // Should not crash and return a valid value
       EXPECT_FALSE(result.empty());
     });
   }
@@ -150,21 +160,29 @@ TEST_F(AuthUtilTest, ClientTypeThreadSafety) {
   }
 }
 
-TEST_F(AuthUtilTest, SetClientTypeWithLongString) {
-  std::string longType(1000, 'x');
-  AuthUtil::setClientType(longType);
-  EXPECT_EQ(longType, AuthUtil::clientType());
-}
-
-TEST_F(AuthUtilTest, ClientTypePreservesValue) {
-  AuthUtil::setClientType("preserved_value");
+TEST_F(AuthUtilTest, ClientTypeReadsEnvironmentEachTime) {
+  // Set initial value
+#if defined(_WIN32) || defined(_WIN64)
+  _putenv_s("ALIBABA_CLOUD_PROFILE", "initial");
+#else
+  setenv("ALIBABA_CLOUD_PROFILE", "initial", 1);
+#endif
   
-  // Call other methods
+  EXPECT_EQ("initial", AuthUtil::clientType());
+  
+  // Call other methods - should not affect clientType
   AuthUtil::generateSessionName();
   AuthUtil::generateSessionName();
   
-  // Client type should still be preserved
-  EXPECT_EQ("preserved_value", AuthUtil::clientType());
+  // Change environment
+#if defined(_WIN32) || defined(_WIN64)
+  _putenv_s("ALIBABA_CLOUD_PROFILE", "changed");
+#else
+  setenv("ALIBABA_CLOUD_PROFILE", "changed", 1);
+#endif
+  
+  // Should reflect the new value (reads each time)
+  EXPECT_EQ("changed", AuthUtil::clientType());
 }
 
 // ==================== User-Agent Tests ====================
@@ -213,7 +231,7 @@ TEST_F(AuthUtilTest, GetUserAgentBasic) {
   std::cout << "User-Agent: " << ua << std::endl;
   
   // Format: AlibabaCloud ({os}; {machine}) C++/{version} Credentials/{credentials_version} TeaDSL/2
-  EXPECT_EQ(0, ua.find("AlibabaCloud"));
+  EXPECT_EQ(0u, ua.find("AlibabaCloud"));
   EXPECT_NE(std::string::npos, ua.find(AuthUtil::getOSName()));
   EXPECT_NE(std::string::npos, ua.find(AuthUtil::getMachineName()));
   EXPECT_NE(std::string::npos, ua.find("C++/" + AuthUtil::getCppVersion()));
@@ -258,7 +276,7 @@ TEST_F(AuthUtilTest, GetNewRequestBasic) {
   
   EXPECT_TRUE(req.getHeaders().count("User-Agent") > 0);
   std::string ua = req.getHeaders().at("User-Agent");
-  EXPECT_EQ(0, ua.find("AlibabaCloud"));
+  EXPECT_EQ(0u, ua.find("AlibabaCloud"));
   EXPECT_NE(std::string::npos, ua.find("TeaDSL/2"));
 }
 

@@ -1,4 +1,5 @@
 #include <alibabacloud/credential/AuthUtil.hpp>
+#include <alibabacloud/credential/Exception.hpp>
 #include <alibabacloud/credential/provider/EcsRamRoleProvider.hpp>
 #include <darabonba/Core.hpp>
 #include <darabonba/Env.hpp>
@@ -33,7 +34,8 @@ EcsRamRoleProvider::EcsRamRoleProvider(
       roleName_(config->hasRoleName() ? config->getRoleName() : ""),
       disableIMDSv1_(config->hasDisableIMDSv1() ? config->getDisableIMDSv1()
                                                 : false),
-      shouldRefresh_(false), asyncUpdateEnabled_(asyncUpdateEnabled),
+      shouldRefresh_(false),
+      asyncUpdateEnabled_(asyncUpdateEnabled),
       connectTimeout_(config->hasConnectTimeout() ? config->getConnectTimeout()
                                                   : DEFAULT_CONNECT_TIMEOUT),
       readTimeout_(config->hasTimeout() ? config->getTimeout()
@@ -111,7 +113,7 @@ std::string EcsRamRoleProvider::getMetadataToken() const {
     const auto resp = future.get();
 
     if (resp->getStatusCode() != 200) {
-      throw Darabonba::Exception(
+      throw CredentialException(
           ECS_METADATA_TOKEN_FETCH_ERROR_MSG +
           " HttpCode=" + std::to_string(resp->getStatusCode()));
     }
@@ -155,7 +157,7 @@ RefreshResult EcsRamRoleProvider::doRefresh() const {
   auto resp = future.get();
 
   if (resp->getStatusCode() != 200) {
-    throw Darabonba::Exception(ECS_METADATA_FETCH_ERROR_MSG + " HttpCode=" +
+    throw CredentialException(ECS_METADATA_FETCH_ERROR_MSG + " HttpCode=" +
                                std::to_string(resp->getStatusCode()));
   }
 
@@ -164,7 +166,7 @@ RefreshResult EcsRamRoleProvider::doRefresh() const {
 
   std::string contentCode = result["Code"].get<std::string>();
   if (contentCode != "Success") {
-    throw Darabonba::Exception(ECS_METADATA_FETCH_ERROR_MSG +
+    throw CredentialException(ECS_METADATA_FETCH_ERROR_MSG +
                                " Code=" + contentCode);
   }
 
@@ -217,7 +219,7 @@ std::string EcsRamRoleProvider::getRoleName() const {
   auto resp = future.get();
 
   if (resp->getStatusCode() != 200) {
-    throw Darabonba::Exception(ECS_METADATA_FETCH_ERROR_MSG + " HttpCode=" +
+    throw CredentialException(ECS_METADATA_FETCH_ERROR_MSG + " HttpCode=" +
                                std::to_string(resp->getStatusCode()));
   }
 

@@ -88,6 +88,7 @@ sudo apt-get install -y \
 | `ENABLE_UNIT_TESTS` | OFF | 启用单元测试编译 | `-DENABLE_UNIT_TESTS=ON` |
 | `ENABLE_RTTI` | ON | 启用运行时类型信息 | `-DENABLE_RTTI=OFF` |
 | `MINIMIZE_SIZE` | OFF | 最小化二进制大小（可能影响性能） | `-DMINIMIZE_SIZE=ON` |
+| `CURL_AUTO_DEPS` | ON | 自动检测 curl 的传递依赖（用于静态构建） | `-DCURL_AUTO_DEPS=OFF` |
 | `CMAKE_CXX_STANDARD` | 11 | C++ 标准版本 (11/14/17/20/23) | `-DCMAKE_CXX_STANDARD=20` |
 | `CMAKE_BUILD_TYPE` | - | 构建类型 (Debug/Release/RelWithDebInfo/MinSizeRel) | `-DCMAKE_BUILD_TYPE=Release` |
 | `CMAKE_INSTALL_PREFIX` | `/usr/local` | 安装目录 | `-DCMAKE_INSTALL_PREFIX=/opt/alibabacloud` |

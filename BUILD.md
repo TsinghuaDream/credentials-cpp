@@ -88,6 +88,7 @@ If you encounter linker errors like `undefined reference to 'nghttp2_*'` or `'gs
 | `ENABLE_UNIT_TESTS` | OFF | Enable unit tests compilation | `-DENABLE_UNIT_TESTS=ON` |
 | `ENABLE_RTTI` | ON | Enable Run-Time Type Information | `-DENABLE_RTTI=OFF` |
 | `MINIMIZE_SIZE` | OFF | Minimize binary size (may affect performance) | `-DMINIMIZE_SIZE=ON` |
+| `CURL_AUTO_DEPS` | ON | Auto-detect curl's transitive dependencies (for static builds) | `-DCURL_AUTO_DEPS=OFF` |
 | `CMAKE_CXX_STANDARD` | 11 | C++ standard version (11/14/17/20/23) | `-DCMAKE_CXX_STANDARD=20` |
 | `CMAKE_BUILD_TYPE` | - | Build type (Debug/Release/RelWithDebInfo/MinSizeRel) | `-DCMAKE_BUILD_TYPE=Release` |
 | `CMAKE_INSTALL_PREFIX` | `/usr/local` | Installation directory | `-DCMAKE_INSTALL_PREFIX=/opt/alibabacloud` |

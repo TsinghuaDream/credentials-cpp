@@ -7,6 +7,7 @@ option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(ENABLE_UNIT_TESTS "Enable unit tests" OFF)
 option(ENABLE_RTTI "Enable Run-Time Type Information" ON)
 option(MINIMIZE_SIZE "Minimize binary size (may affect performance)" OFF)
+option(CURL_AUTO_DEPS "Auto-detect and link curl's transitive dependencies (for static builds)" ON)
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< C++ Standard >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> #
 if(NOT CMAKE_CXX_STANDARD)

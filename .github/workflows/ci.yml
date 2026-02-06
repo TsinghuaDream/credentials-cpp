@@ -80,10 +80,11 @@ jobs:
           C:/vcpkg/buildtrees
           C:/vcpkg/downloads
           ~/AppData/Local/vcpkg/archives
-        # Use content-based key for cross-PR cache sharing
-        key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json', '**/ci.yml') }}-${{ matrix.cxx_standard }}
+        # Key based on fixed dependencies: curl + openssl
+        # Change this key if you modify vcpkg dependencies
+        key: ${{ runner.os }}-vcpkg-curl-openssl-v1-${{ matrix.cxx_standard }}
         restore-keys: |
-          ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json', '**/ci.yml') }}-
+          ${{ runner.os }}-vcpkg-curl-openssl-v1-
           ${{ runner.os }}-vcpkg-
 
     - name: Setup vcpkg binary cache (Windows)

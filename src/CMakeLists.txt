@@ -68,6 +68,35 @@ endif()
 # Windows specific libraries
 if(WIN32)
   target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32 crypt32)
+  
+  # On Windows shared builds, copy runtime DLLs to output directory
+  if(BUILD_SHARED_LIBS)
+    # Copy this library's DLL
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      $<TARGET_FILE:${PROJECT_NAME}>
+      ${CMAKE_CURRENT_BINARY_DIR}/Release/
+      COMMENT "Copying ${PROJECT_NAME} DLL to Release directory"
+    )
+    
+    # Copy OpenSSL DLLs if they exist
+    if(TARGET OpenSSL::SSL)
+      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:OpenSSL::SSL>
+        ${CMAKE_CURRENT_BINARY_DIR}/Release/
+        COMMENT "Copying OpenSSL::SSL DLL"
+      )
+    endif()
+    if(TARGET OpenSSL::Crypto)
+      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:OpenSSL::Crypto>
+        ${CMAKE_CURRENT_BINARY_DIR}/Release/
+        COMMENT "Copying OpenSSL::Crypto DLL"
+      )
+    endif()
+  endif()
 endif()
 
 # 6. Target Properties and Compiler Definitions

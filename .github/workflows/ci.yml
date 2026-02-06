@@ -138,7 +138,23 @@ jobs:
           cp src/Release/*.dll tests/Release/ 2>/dev/null || true
           echo "DLLs in tests/Release after copy:"
           ls -la tests/Release/*.dll
-          ./tests/Release/alibabacloud_credentialsTest.exe
+          
+          # Run test and capture detailed error
+          echo "Running test..."
+          if ! ./tests/Release/alibabacloud_credentialsTest.exe; then
+            EXIT_CODE=$?
+            echo "Test failed with exit code: $EXIT_CODE"
+            
+            # Try to get more error info using Windows error reporting
+            echo "Checking for missing DLLs using dumpbin (if available):"
+            which dumpbin && dumpbin /dependents tests/Release/alibabacloud_credentialsTest.exe || echo "dumpbin not found"
+            
+            # List all DLLs in PATH that might be needed
+            echo "OpenSSL/curl DLLs in vcpkg:"
+            ls -la "$VCPKG_INSTALLATION_ROOT/installed/x64-windows/bin/" | grep -E "(ssl|crypto|curl)" || echo "vcpkg bin not found"
+            
+            exit $EXIT_CODE
+          fi
         else
           ctest --output-on-failure -C Release
         fi

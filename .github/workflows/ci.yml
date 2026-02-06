@@ -132,31 +132,12 @@ jobs:
       run: |
         cd build-shared
         if [ "${{ runner.os }}" = "Windows" ]; then
-          # Windows: Copy DLL to test directory and run directly
-          echo "Listing build structure:"
-          ls -la src/Release/ || echo "src/Release not found"
-          ls -la _deps/ || echo "_deps not found"
-          
-          mkdir -p tests/Release
-          # Copy credentials DLL
-          if [ -f src/Release/alibabacloud_credentials.dll ]; then
-            cp src/Release/alibabacloud_credentials.dll tests/Release/
-            echo "Copied alibabacloud_credentials.dll"
-          fi
-          # Copy darabonba-core DLL
-          if [ -f _deps/_darabonba_core-build/src/Release/darabonba_core.dll ]; then
-            cp _deps/_darabonba_core-build/src/Release/darabonba_core.dll tests/Release/
-            echo "Copied darabonba_core.dll"
-          fi
-          # Copy OpenSSL libcrypto DLL if present
-          if [ -f src/Release/libcrypto-3-x64.dll ]; then
-            cp src/Release/libcrypto-3-x64.dll tests/Release/
-            echo "Copied libcrypto-3-x64.dll"
-          fi
-          
-          echo "Listing tests/Release:"
-          ls -la tests/Release/
-          # Run test
+          # Windows: Copy vcpkg DLLs (OpenSSL, curl) and run test
+          echo "DLLs in src/Release:"
+          ls -la src/Release/*.dll
+          cp src/Release/*.dll tests/Release/ 2>/dev/null || true
+          echo "DLLs in tests/Release after copy:"
+          ls -la tests/Release/*.dll
           ./tests/Release/alibabacloud_credentialsTest.exe
         else
           ctest --output-on-failure -C Release

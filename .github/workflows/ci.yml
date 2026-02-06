@@ -148,6 +148,11 @@ jobs:
             cp _deps/_darabonba_core-build/src/Release/darabonba_core.dll tests/Release/
             echo "Copied darabonba_core.dll"
           fi
+          # Copy OpenSSL libcrypto DLL if present
+          if [ -f src/Release/libcrypto-3-x64.dll ]; then
+            cp src/Release/libcrypto-3-x64.dll tests/Release/
+            echo "Copied libcrypto-3-x64.dll"
+          fi
           
           echo "Listing tests/Release:"
           ls -la tests/Release/

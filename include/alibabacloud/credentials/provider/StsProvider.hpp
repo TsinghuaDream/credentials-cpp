@@ -10,7 +10,7 @@
 
 namespace AlibabaCloud {
 namespace Credentials {
-class StsProvider : public Provider {
+class ALIBABACLOUD_CREDENTIALS_EXPORT StsProvider : public Provider {
 public:
   StsProvider(std::shared_ptr<Models::Config> config) {
     credential_.setAccessKeyId(config->getAccessKeyId())

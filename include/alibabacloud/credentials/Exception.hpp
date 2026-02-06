@@ -15,7 +15,7 @@ namespace Credentials {
  * Aligned with tea-java TeaException design pattern
  * Supports multiple construction methods and comprehensive error information
  */
-class CredentialException : public std::exception {
+class ALIBABACLOUD_CREDENTIALS_EXPORT CredentialException : public std::exception {
 public:
     /**
      * @brief Default constructor

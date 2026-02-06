@@ -25,7 +25,7 @@ namespace Credentials {
  * - Custom stale_time and prefetch_time calculation
  * - ALLOW mode tolerates refresh failures
  */
-class EcsRamRoleProvider : public RefreshableProvider {
+class ALIBABACLOUD_CREDENTIALS_EXPORT EcsRamRoleProvider : public RefreshableProvider {
 public:
   // Default configuration constants (from Python SDK)
   static constexpr int DEFAULT_METADATA_TOKEN_DURATION = 21600;  // 6 hours

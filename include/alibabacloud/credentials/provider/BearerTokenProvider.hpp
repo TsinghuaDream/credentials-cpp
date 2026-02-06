@@ -10,7 +10,7 @@
 
 namespace AlibabaCloud {
 namespace Credentials {
-class BearerTokenProvider : public Provider {
+class ALIBABACLOUD_CREDENTIALS_EXPORT BearerTokenProvider : public Provider {
 public:
   BearerTokenProvider(std::shared_ptr<Models::Config> config) {
     credential_.setBearerToken(config->getBearerToken()).setType(Constant::BEARER);

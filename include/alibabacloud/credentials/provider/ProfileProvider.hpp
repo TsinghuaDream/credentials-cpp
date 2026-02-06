@@ -8,7 +8,7 @@
 #include <alibabacloud/credentials/provider/Provider.hpp>
 namespace AlibabaCloud {
 namespace Credentials {
-class ProfileProvider : public Provider {
+class ALIBABACLOUD_CREDENTIALS_EXPORT ProfileProvider : public Provider {
 public:
 
   virtual Models::CredentialModel &getCredential() override {

@@ -13,7 +13,7 @@
 namespace AlibabaCloud {
 namespace Credentials {
 
-class CloudSSOCredentialsProvider : public NeedFreshProvider,
+class ALIBABACLOUD_CREDENTIALS_EXPORT CloudSSOCredentialsProvider : public NeedFreshProvider,
                                      std::enable_shared_from_this<CloudSSOCredentialsProvider> {
 public:
   CloudSSOCredentialsProvider(std::shared_ptr<Models::Config> config)

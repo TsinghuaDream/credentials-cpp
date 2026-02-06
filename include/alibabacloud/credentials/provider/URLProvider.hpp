@@ -11,7 +11,7 @@
 namespace AlibabaCloud {
 namespace Credentials {
 
-class URLProvider : public NeedFreshProvider,
+class ALIBABACLOUD_CREDENTIALS_EXPORT URLProvider : public NeedFreshProvider,
                     std::enable_shared_from_this<URLProvider> {
 public:
 

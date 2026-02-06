@@ -8,7 +8,7 @@
 #include <alibabacloud/credentials/provider/Provider.hpp>
 namespace AlibabaCloud {
 namespace Credentials {
-class NeedFreshProvider : public Provider {
+class ALIBABACLOUD_CREDENTIALS_EXPORT NeedFreshProvider : public Provider {
 public:
   NeedFreshProvider() = default;
   NeedFreshProvider(long long expiration) : expiration_(expiration) {}

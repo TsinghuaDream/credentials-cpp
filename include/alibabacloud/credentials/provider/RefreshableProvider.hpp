@@ -137,7 +137,7 @@ public:
  * - Failure retry and stale value handling
  * - Configurable refresh strategy (blocking/non-blocking)
  */
-class RefreshableProvider : public Provider {
+class ALIBABACLOUD_CREDENTIALS_EXPORT RefreshableProvider : public Provider {
 public:
   // Constants
   static constexpr int64_t STALE_TIME_WINDOW = 15 * 60;      // 15 minutes stale window

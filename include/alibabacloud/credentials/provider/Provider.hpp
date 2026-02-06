@@ -5,10 +5,11 @@
 #include <string>
 
 #include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/Export.hpp>
 
 namespace AlibabaCloud {
 namespace Credentials {
-class Provider {
+class ALIBABACLOUD_CREDENTIALS_EXPORT Provider {
 public:
   Provider() = default;
   virtual ~Provider() {}

@@ -12,7 +12,7 @@
 namespace AlibabaCloud {
 namespace Credentials {
 
-class RamRoleArnProvider : public NeedFreshProvider,
+class ALIBABACLOUD_CREDENTIALS_EXPORT RamRoleArnProvider : public NeedFreshProvider,
                            std::enable_shared_from_this<RamRoleArnProvider> {
 public:
   RamRoleArnProvider(std::shared_ptr<Models::Config> config)

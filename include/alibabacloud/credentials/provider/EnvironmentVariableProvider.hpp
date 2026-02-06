@@ -12,7 +12,7 @@ namespace AlibabaCloud {
 
 namespace Credentials {
 
-class EnvironmentVariableProvider : public Provider {
+class ALIBABACLOUD_CREDENTIALS_EXPORT EnvironmentVariableProvider : public Provider {
 public:
   EnvironmentVariableProvider() = default;
   virtual ~EnvironmentVariableProvider() {}

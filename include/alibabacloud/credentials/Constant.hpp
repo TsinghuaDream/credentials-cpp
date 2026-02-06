@@ -2,6 +2,7 @@
 #define ALIBABACLOUD_CREDENTIALS_CONSTANT_HPP_
 
 #include <string>
+#include <alibabacloud/credentials/Export.hpp>
 
 // Disable C4251 warning for std::string members in DLL-exported classes
 // This is safe when both DLL and client use the same compiler and runtime
@@ -12,7 +13,7 @@
 
 namespace AlibabaCloud {
 namespace Credentials {
-class Constant {
+class ALIBABACLOUD_CREDENTIALS_EXPORT Constant {
 public:
   // Ini
   static const std::string INI_ACCESS_KEY_ID;

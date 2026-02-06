@@ -3,6 +3,7 @@
 
 #include <darabonba/Model.hpp>
 #include <memory>
+#include <alibabacloud/credentials/Export.hpp>
 using namespace std;
 // Forward declaration to avoid circular dependency
 namespace AlibabaCloud {
@@ -14,7 +15,7 @@ class AuthUtil;
 namespace AlibabaCloud {
 namespace Credentials {
 namespace Models {
-class CredentialModel : public Darabonba::Model {
+class ALIBABACLOUD_CREDENTIALS_EXPORT CredentialModel : public Darabonba::Model {
 public:
   friend void to_json(Darabonba::Json &j, const CredentialModel &obj) {
     DARABONBA_PTR_TO_JSON(accessKeyId, accessKeyId_);
@@ -130,7 +131,7 @@ protected:
 /**
  * Model for initing credential
  */
-class Config : public Darabonba::Model {
+class ALIBABACLOUD_CREDENTIALS_EXPORT Config : public Darabonba::Model {
 public:
   friend void to_json(Darabonba::Json &j, const Config &obj) {
     DARABONBA_PTR_TO_JSON(accessKeyId, accessKeyId_);

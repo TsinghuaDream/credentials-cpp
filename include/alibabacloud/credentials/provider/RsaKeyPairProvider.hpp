@@ -10,7 +10,7 @@
 namespace AlibabaCloud {
 namespace Credentials {
 
-class RsaKeyPairProvider : public NeedFreshProvider,
+class ALIBABACLOUD_CREDENTIALS_EXPORT RsaKeyPairProvider : public NeedFreshProvider,
                            std::enable_shared_from_this<RsaKeyPairProvider> {
 public:
   RsaKeyPairProvider(std::shared_ptr<Models::Config> config)

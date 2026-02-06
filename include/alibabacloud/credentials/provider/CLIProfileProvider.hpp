@@ -28,7 +28,7 @@ namespace Credentials {
  * - CLIProfileProvider: Specialized for CLI config files, supports JSON and INI formats
  * - ProfileProvider: General purpose config file provider (maintains backward compatibility)
  */
-class CLIProfileProvider : public Provider {
+class ALIBABACLOUD_CREDENTIALS_EXPORT CLIProfileProvider : public Provider {
 public:
   /**
    * @brief Default constructor

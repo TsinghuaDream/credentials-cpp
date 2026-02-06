@@ -2,6 +2,7 @@
 #define ALIBABACLOUD_CREDENTIALS_AUTHUTIL_HPP_
 
 #include <string>
+#include <alibabacloud/credentials/Export.hpp>
 
 namespace Darabonba {
 namespace Http {
@@ -13,7 +14,7 @@ namespace AlibabaCloud {
 
 namespace Credentials {
 
-class AuthUtil {
+class ALIBABACLOUD_CREDENTIALS_EXPORT AuthUtil {
 public:
   /**
    * @brief Get client type from environment variable

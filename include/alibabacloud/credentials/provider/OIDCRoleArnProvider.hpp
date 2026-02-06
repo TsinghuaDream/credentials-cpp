@@ -11,7 +11,7 @@
 namespace AlibabaCloud {
 namespace Credentials {
 
-class OIDCRoleArnProvider : public NeedFreshProvider,
+class ALIBABACLOUD_CREDENTIALS_EXPORT OIDCRoleArnProvider : public NeedFreshProvider,
                            std::enable_shared_from_this<OIDCRoleArnProvider>{
 public:
   OIDCRoleArnProvider(std::shared_ptr<Models::Config> config)

@@ -11,7 +11,7 @@
 
 namespace AlibabaCloud {
 namespace Credentials {
-class DefaultProvider : public Provider {
+class ALIBABACLOUD_CREDENTIALS_EXPORT DefaultProvider : public Provider {
 public:
   DefaultProvider();
   explicit DefaultProvider(std::shared_ptr<Models::Config> config);

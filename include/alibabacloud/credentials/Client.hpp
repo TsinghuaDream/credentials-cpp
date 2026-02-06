@@ -2,6 +2,7 @@
 #define ALIBABACLOUD_CREDENTIALS_CLIENT_HPP_
 
 #include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/Export.hpp>
 #include <alibabacloud/credentials/provider/Provider.hpp>
 
 #include <memory>
@@ -9,7 +10,7 @@
 
 namespace AlibabaCloud {
 namespace Credentials {
-class Client : public Darabonba::Model {
+class ALIBABACLOUD_CREDENTIALS_EXPORT Client : public Darabonba::Model {
   friend void to_json(Darabonba::Json &j, const Client &obj) {
     DARABONBA_PTR_TO_JSON(config, config_);
   }

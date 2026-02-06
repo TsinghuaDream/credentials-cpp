@@ -89,7 +89,7 @@ if(WIN32)
   
   # Suppress LNK4197 warning: vtable exported multiple times
   # This is safe when building DLLs with multiple translation units
-  if(BUILD_SHARED_LIBS)
+  if(MSVC AND BUILD_SHARED_LIBS)
     target_link_options(${PROJECT_NAME} PRIVATE /ignore:4197)
   endif()
 endif()

@@ -9,10 +9,14 @@
 namespace AlibabaCloud {
 namespace Credentials {
 
-// Note: In C++17+, inline initialization is sufficient for static constexpr members.
-// For C++11/14 compatibility, these definitions were needed but are now deprecated in C++17.
-// Since we target C++11-20, we remove these to avoid C++17+ deprecation warnings.
-// The inline initialization in the header is sufficient for all supported standards.
+// Note: In C++17+, inline variables make class-external definitions redundant.
+// However, for C++11/14 compatibility, we need these definitions when the constant
+// is ODR-used (e.g., as a function parameter or with std::to_string).
+#if __cplusplus < 201703L
+constexpr int EcsRamRoleProvider::DEFAULT_METADATA_TOKEN_DURATION;
+constexpr int EcsRamRoleProvider::DEFAULT_CONNECT_TIMEOUT;
+constexpr int EcsRamRoleProvider::DEFAULT_READ_TIMEOUT;
+#endif
 
 // 常量定义（对应 Python SDK）
 const std::string EcsRamRoleProvider::URL_IN_ECS_META_DATA =

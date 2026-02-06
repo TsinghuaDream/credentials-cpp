@@ -86,6 +86,8 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-vcpkg-curl-openssl-v1-
           ${{ runner.os }}-vcpkg-
+        # Save cache even if the job fails (e.g., due to test failures)
+        save-always: true
 
     - name: Setup vcpkg binary cache (Windows)
       if: runner.os == 'Windows'

@@ -78,6 +78,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
   VERSION ${PROJECT_VERSION}
 )
 
+# Add -Werror only for our own code (not external dependencies)
+if(NOT MSVC)
+  target_compile_options(${PROJECT_NAME} PRIVATE -Werror)
+endif()
+
 if(WIN32)
   target_compile_definitions(${PROJECT_NAME} PRIVATE ALIBABACLOUD_CREDENTIALS_BUILD)
   # Runtime library is now handled by CMAKE_MSVC_RUNTIME_LIBRARY in root CMakeLists.txt

@@ -30,7 +30,9 @@ if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
   endif()
 else()
-  add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+  # Enable strict warnings but don't set -Werror globally (it affects external dependencies)
+  # We'll add -Werror per-target for our own code
+  add_compile_options(-Wall -Wextra -Wpedantic)
   # Enable additional deprecation warnings for better C++ compliance
   add_compile_options(-Wdeprecated -Wdeprecated-copy)
   

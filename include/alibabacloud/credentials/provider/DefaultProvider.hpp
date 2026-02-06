@@ -47,7 +47,7 @@ public:
             lastSuccessfulProvider_ = provider.get();
           }
           return credential;
-        } catch (CredentialException& e) {
+        } catch (CredentialException&) {
           continue;
         }
       }
@@ -74,7 +74,7 @@ public:
             lastSuccessfulProvider_ = provider.get();
           }
           return credential;
-        } catch (CredentialException& e) {
+        } catch (CredentialException&) {
           continue;
         }
       }
@@ -104,7 +104,7 @@ public:
             lastSuccessfulProvider_ = provider.get();
           }
           return name;
-        } catch (CredentialException& e) {
+        } catch (CredentialException&) {
           continue;
         }
       }

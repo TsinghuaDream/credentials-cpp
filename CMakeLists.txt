@@ -31,6 +31,8 @@ if(MSVC)
   endif()
 else()
   add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+  # Enable additional deprecation warnings for better C++ compliance
+  add_compile_options(-Wdeprecated -Wdeprecated-copy)
   
   # RTTI control for GCC/Clang
   if(NOT ENABLE_RTTI)

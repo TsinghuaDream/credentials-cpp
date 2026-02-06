@@ -16,12 +16,14 @@
   #endif
 #endif
 
-// Macros to suppress MSVC C4251 warning (STL types in exported classes)
-// These warnings are safe when the DLL and client use the same compiler and runtime
+// Macros to suppress MSVC warnings for STL types in exported classes
+// C4251: STL types need dll-interface (safe when using same compiler/runtime)
+// C4275: Non dll-interface class used as base for dll-interface class (safe for STL base classes)
 #ifdef _MSC_VER
   #define ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_PUSH \
     __pragma(warning(push)) \
-    __pragma(warning(disable: 4251))
+    __pragma(warning(disable: 4251)) \
+    __pragma(warning(disable: 4275))
   
   #define ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_POP \
     __pragma(warning(pop))

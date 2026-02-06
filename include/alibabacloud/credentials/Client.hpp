@@ -36,6 +36,10 @@ public:
   // Equivalent to Java: public Client(AlibabaCloudCredentialsProvider provider)
   Client(std::shared_ptr<Provider> provider);
   
+  Client(const Client &) = default;
+  Client(Client &&) = default;
+  Client &operator=(const Client &) = default;
+  Client &operator=(Client &&) = default;
   virtual ~Client() = default;
 
   virtual void validate() const override {}

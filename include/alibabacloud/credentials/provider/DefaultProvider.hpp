@@ -9,6 +9,8 @@
 #include <alibabacloud/credentials/Model.hpp>
 #include <alibabacloud/credentials/provider/Provider.hpp>
 
+ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_PUSH
+
 namespace AlibabaCloud {
 namespace Credentials {
 class ALIBABACLOUD_CREDENTIALS_EXPORT DefaultProvider : public Provider {
@@ -118,4 +120,7 @@ protected:
 } // namespace Credentials
 
 } // namespace AlibabaCloud
+
+ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_POP
+
 #endif

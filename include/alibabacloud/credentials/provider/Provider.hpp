@@ -12,7 +12,11 @@ namespace Credentials {
 class ALIBABACLOUD_CREDENTIALS_EXPORT Provider {
 public:
   Provider() = default;
-  virtual ~Provider() {}
+  Provider(const Provider &) = default;
+  Provider(Provider &&) = default;
+  Provider &operator=(const Provider &) = default;
+  Provider &operator=(Provider &&) = default;
+  virtual ~Provider() = default;
 
   virtual Models::CredentialModel &getCredential() = 0;
   virtual const Models::CredentialModel &getCredential() const = 0;

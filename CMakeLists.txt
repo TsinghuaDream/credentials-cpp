@@ -19,7 +19,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 if(MSVC)
   # Standardize MSVC runtime (MD/MDd for shared, MT/MTd for static)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
-  add_compile_options(/W4 /Zc:__cplusplus /utf-8)
+  add_compile_options(/W4 /WX /Zc:__cplusplus /utf-8)
   
   # Runtime library selection
   if(BUILD_SHARED_LIBS)
@@ -30,7 +30,7 @@ if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
   endif()
 else()
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -Wpedantic -Werror)
   
   # RTTI control for GCC/Clang
   if(NOT ENABLE_RTTI)

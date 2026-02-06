@@ -15,6 +15,15 @@ namespace Credentials {
 class ALIBABACLOUD_CREDENTIALS_EXPORT EnvironmentVariableProvider : public Provider {
 public:
   EnvironmentVariableProvider() = default;
+  
+  // Disable copy (contains unique_ptr)
+  EnvironmentVariableProvider(const EnvironmentVariableProvider&) = delete;
+  EnvironmentVariableProvider& operator=(const EnvironmentVariableProvider&) = delete;
+  
+  // Allow move
+  EnvironmentVariableProvider(EnvironmentVariableProvider&&) = default;
+  EnvironmentVariableProvider& operator=(EnvironmentVariableProvider&&) = default;
+  
   virtual ~EnvironmentVariableProvider() {}
 
   virtual Models::CredentialModel &getCredential() override {

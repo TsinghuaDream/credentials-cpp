@@ -10,6 +10,17 @@ namespace AlibabaCloud {
 namespace Credentials {
 class ALIBABACLOUD_CREDENTIALS_EXPORT ProfileProvider : public Provider {
 public:
+  ProfileProvider() = default;
+  
+  // Disable copy (contains unique_ptr)
+  ProfileProvider(const ProfileProvider&) = delete;
+  ProfileProvider& operator=(const ProfileProvider&) = delete;
+  
+  // Allow move
+  ProfileProvider(ProfileProvider&&) = default;
+  ProfileProvider& operator=(ProfileProvider&&) = default;
+  
+  virtual ~ProfileProvider() = default;
 
   virtual Models::CredentialModel &getCredential() override {
     provider_ = createProvider();

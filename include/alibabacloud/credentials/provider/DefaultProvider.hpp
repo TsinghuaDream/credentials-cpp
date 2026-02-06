@@ -16,6 +16,14 @@ public:
   DefaultProvider();
   explicit DefaultProvider(std::shared_ptr<Models::Config> config);
 
+  // Disable copy (contains unique_ptr)
+  DefaultProvider(const DefaultProvider&) = delete;
+  DefaultProvider& operator=(const DefaultProvider&) = delete;
+  
+  // Allow move
+  DefaultProvider(DefaultProvider&&) = default;
+  DefaultProvider& operator=(DefaultProvider&&) = default;
+
   virtual ~DefaultProvider() = default;
 
   virtual Models::CredentialModel &getCredential() override {

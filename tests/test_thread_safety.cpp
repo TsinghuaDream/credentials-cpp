@@ -85,7 +85,7 @@ TEST(ThreadSafetyTest, RefreshableProviderConcurrentAccess) {
             }
           }
           successCount++;
-        } catch (const std::exception& e) {
+        } catch (const std::exception&) {
           // First call may throw if cache is not yet populated
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));

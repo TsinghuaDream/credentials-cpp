@@ -7,6 +7,8 @@
 #include <darabonba/Core.hpp>
 #include <alibabacloud/credentials/Export.hpp>
 
+ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_PUSH
+
 namespace AlibabaCloud {
 namespace Credentials {
 
@@ -166,5 +168,7 @@ private:
 
 } // namespace Credentials
 } // namespace AlibabaCloud
+
+ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_POP
 
 #endif // ALIBABACLOUD_CREDENTIALS_EXCEPTION_HPP_

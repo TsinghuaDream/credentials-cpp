@@ -9,11 +9,7 @@
 #include <alibabacloud/credentials/Model.hpp>
 #include <alibabacloud/credentials/provider/NeedFreshProvider.hpp>
 
-// Disable C4251 warning for STL members in exported classes
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable: 4251)
-#endif
+ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_PUSH
 
 namespace AlibabaCloud {
 namespace Credentials {
@@ -86,8 +82,6 @@ private:
 
 } // namespace AlibabaCloud
 
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
+ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_POP
 
 #endif

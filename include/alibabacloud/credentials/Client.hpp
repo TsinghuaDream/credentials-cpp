@@ -8,6 +8,8 @@
 #include <memory>
 #include <string>
 
+ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_PUSH
+
 namespace AlibabaCloud {
 namespace Credentials {
 class ALIBABACLOUD_CREDENTIALS_EXPORT Client : public Darabonba::Model {
@@ -140,5 +142,7 @@ namespace nlohmann {
     }
   };
 }
+
+ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_POP
 
 #endif

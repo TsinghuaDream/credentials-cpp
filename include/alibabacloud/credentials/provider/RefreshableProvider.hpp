@@ -20,6 +20,8 @@
 
 #include <alibabacloud/credentials/provider/Provider.hpp>
 
+ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_PUSH
+
 namespace AlibabaCloud {
 namespace Credentials {
 
@@ -433,5 +435,7 @@ private:
 
 } // namespace Credentials
 } // namespace AlibabaCloud
+
+ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_POP
 
 #endif

@@ -16,4 +16,18 @@
   #endif
 #endif
 
+// Macros to suppress MSVC C4251 warning (STL types in exported classes)
+// These warnings are safe when the DLL and client use the same compiler and runtime
+#ifdef _MSC_VER
+  #define ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_PUSH \
+    __pragma(warning(push)) \
+    __pragma(warning(disable: 4251))
+  
+  #define ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_POP \
+    __pragma(warning(pop))
+#else
+  #define ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_PUSH
+  #define ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_POP
+#endif
+
 #endif // ALIBABACLOUD_CREDENTIALS_EXPORT_HPP_

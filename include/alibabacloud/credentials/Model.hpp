@@ -4,6 +4,9 @@
 #include <darabonba/Model.hpp>
 #include <memory>
 #include <alibabacloud/credentials/Export.hpp>
+
+ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_PUSH
+
 using namespace std;
 // Forward declaration to avoid circular dependency
 namespace AlibabaCloud {
@@ -595,4 +598,7 @@ protected:
 } // namespace Models
 } // namespace Credentials
 } // namespace AlibabaCloud
+
+ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_POP
+
 #endif

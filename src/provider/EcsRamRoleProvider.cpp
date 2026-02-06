@@ -9,10 +9,10 @@
 namespace AlibabaCloud {
 namespace Credentials {
 
-// C++11 requires out-of-class definition for constexpr static members
-constexpr int EcsRamRoleProvider::DEFAULT_READ_TIMEOUT;
-constexpr int EcsRamRoleProvider::DEFAULT_CONNECT_TIMEOUT;
-constexpr int EcsRamRoleProvider::DEFAULT_METADATA_TOKEN_DURATION;
+// Note: In C++17+, inline initialization is sufficient for static constexpr members.
+// For C++11/14 compatibility, these definitions were needed but are now deprecated in C++17.
+// Since we target C++11-20, we remove these to avoid C++17+ deprecation warnings.
+// The inline initialization in the header is sufficient for all supported standards.
 
 // 常量定义（对应 Python SDK）
 const std::string EcsRamRoleProvider::URL_IN_ECS_META_DATA =
@@ -119,7 +119,7 @@ std::string EcsRamRoleProvider::getMetadataToken() const {
     }
 
     return Darabonba::IFStream::readAsString(resp->getBody());
-  } catch (const std::exception &e) {
+  } catch (const std::exception&) {
     // 如果禁用了 IMDSv1，抛出异常
     if (disableIMDSv1_) {
       throw;

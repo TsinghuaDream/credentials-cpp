@@ -139,6 +139,8 @@ cmake --install .
 
 在您开始之前，您需要注册阿里云帐户并获取您的[凭证](https://usercenter.console.aliyun.com/#/manage/ak)。
 
+**📚 更多示例请参考 [examples/README.md](examples/README.md) | [examples/README-zh-CN.md](examples/README-zh-CN.md)**
+
 ### 使用默认凭证提供者链（推荐）
 
 ```cpp

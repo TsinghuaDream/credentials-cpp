@@ -139,6 +139,8 @@ cmake --install .
 
 Before you begin, you need to sign up for an Alibaba Cloud account and retrieve your [Credentials](https://usercenter.console.aliyun.com/#/manage/ak).
 
+**📚 For more examples, see [examples/README.md](examples/README.md) | [examples/README-zh-CN.md](examples/README-zh-CN.md)**
+
 ### Using Default Credentials Provider Chain (Recommended)
 
 ```cpp

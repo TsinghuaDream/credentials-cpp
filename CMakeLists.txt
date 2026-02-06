@@ -64,13 +64,15 @@ find_package(OpenSSL REQUIRED)
 find_package(CURL REQUIRED)
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Target Setup >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> #
+# Add external dependencies (darabonba-core)
+add_subdirectory(external)
+
 # The library target is defined in src/CMakeLists.txt
 add_subdirectory(src)
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Subdirectories >>>>>>>>>>>>>>>>>>>>>>>>>>>> #
 if(ENABLE_UNIT_TESTS)
   enable_testing()
-  add_subdirectory(external)
   add_subdirectory(tests)
 endif()
 

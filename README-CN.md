@@ -110,24 +110,26 @@ cmake --install build
 ### 使用默认凭证提供者链（推荐）
 
 ```cpp
-#include <alibabacloud/credentials/Clients.hpp>
+#include <alibabacloud/credentials/Client.hpp>
 #include <iostream>
 
 using namespace AlibabaCloud::Credentials;
 
 int main() {
     // 使用默认凭证提供者链
+    // 自动从环境变量、配置文件等处获取凭证
     Client client;
     
     // 获取凭证
     auto credential = client.getCredential();
     std::cout << "AccessKeyId: " << credential.getAccessKeyId() << std::endl;
-    std::cout << "AccessKeySecret: " << credential.getAccessKeySecret() << std::endl;
     std::cout << "Type: " << credential.getType() << std::endl;
     
     return 0;
 }
 ```
+
+**安全提示：** 请勿在代码中硬编码 AccessKey ID 和 AccessKey Secret，推荐使用环境变量或配置文件。
 
 ### 凭证类型
 
@@ -135,16 +137,30 @@ int main() {
 
 通过[用户信息管理][ak]设置 access_key，它们具有该账户完全的权限，请妥善保管。有时出于安全考虑，您不能把具有完全访问权限的主账户 AccessKey 交于一个项目的开发者使用，您可以[创建RAM子账户][ram]并为子账户[授权][permissions]，使用RAM子用户的 AccessKey 来进行API调用。
 
+**⚠️ 安全警告：请勿在代码中硬编码 AccessKey！**
+
+**推荐方式：通过环境变量获取**
+
 ```cpp
 #include <alibabacloud/credentials/Client.hpp>
+#include <cstdlib>  // for std::getenv
 
 using namespace AlibabaCloud::Credentials;
 
 int main() {
+    // 从环境变量获取凭证
+    const char* accessKeyId = std::getenv("ALIBABA_CLOUD_ACCESS_KEY_ID");
+    const char* accessKeySecret = std::getenv("ALIBABA_CLOUD_ACCESS_KEY_SECRET");
+    
+    if (!accessKeyId || !accessKeySecret) {
+        // 处理凭证未设置的情况
+        return 1;
+    }
+    
     Models::Config config;
     config.setType("access_key")
-          .setAccessKeyId("AccessKeyId")
-          .setAccessKeySecret("AccessKeySecret");
+          .setAccessKeyId(accessKeyId)
+          .setAccessKeySecret(accessKeySecret);
     
     Client client(config);
     auto credential = client.getCredential();
@@ -153,21 +169,49 @@ int main() {
 }
 ```
 
+设置环境变量：
+
+```bash
+# Linux/macOS
+export ALIBABA_CLOUD_ACCESS_KEY_ID="<your-access-key-id>"
+export ALIBABA_CLOUD_ACCESS_KEY_SECRET="<your-access-key-secret>"
+
+# Windows (PowerShell)
+$env:ALIBABA_CLOUD_ACCESS_KEY_ID="<your-access-key-id>"
+$env:ALIBABA_CLOUD_ACCESS_KEY_SECRET="<your-access-key-secret>"
+
+# Windows (CMD)
+set ALIBABA_CLOUD_ACCESS_KEY_ID=<your-access-key-id>
+set ALIBABA_CLOUD_ACCESS_KEY_SECRET=<your-access-key-secret>
+```
+
 #### STS
 
 通过安全令牌服务（Security Token Service，简称 STS），申请临时安全凭证（Temporary Security Credentials，简称 TSC），创建临时安全凭证。
 
+**注意：STS 凭证通常从 STS 服务获取，请勿硬编码！**
+
 ```cpp
 #include <alibabacloud/credentials/Client.hpp>
+#include <cstdlib>
 
 using namespace AlibabaCloud::Credentials;
 
 int main() {
+    // 从环境变量获取 STS 凭证
+    const char* accessKeyId = std::getenv("ALIBABA_CLOUD_ACCESS_KEY_ID");
+    const char* accessKeySecret = std::getenv("ALIBABA_CLOUD_ACCESS_KEY_SECRET");
+    const char* securityToken = std::getenv("ALIBABA_CLOUD_SECURITY_TOKEN");
+    
+    if (!accessKeyId || !accessKeySecret || !securityToken) {
+        return 1;
+    }
+    
     Models::Config config;
     config.setType("sts")
-          .setAccessKeyId("AccessKeyId")
-          .setAccessKeySecret("AccessKeySecret")
-          .setSecurityToken("SecurityToken");
+          .setAccessKeyId(accessKeyId)
+          .setAccessKeySecret(accessKeySecret)
+          .setSecurityToken(securityToken);
     
     Client client(config);
     
@@ -179,20 +223,31 @@ int main() {
 
 通过指定[RAM角色][RAM Role]，让凭证自动申请维护 STS Token。你可以通过为 `Policy` 赋值来限制获取到的 STS Token 的权限。
 
+**注意：初始 AccessKey 应从环境变量获取！**
+
 ```cpp
 #include <alibabacloud/credentials/Client.hpp>
+#include <cstdlib>
 
 using namespace AlibabaCloud::Credentials;
 
 int main() {
+    // 从环境变量获取初始凭证
+    const char* accessKeyId = std::getenv("ALIBABA_CLOUD_ACCESS_KEY_ID");
+    const char* accessKeySecret = std::getenv("ALIBABA_CLOUD_ACCESS_KEY_SECRET");
+    
+    if (!accessKeyId || !accessKeySecret) {
+        return 1;
+    }
+    
     Models::Config config;
     config.setType("ram_role_arn")
-          .setAccessKeyId("AccessKeyId")
-          .setAccessKeySecret("AccessKeySecret")
-          .setRoleArn("RoleArn")
-          .setRoleSessionName("RoleSessionName")
-          .setPolicy("policy")  // 可选
-          .setExternalId("externalId")  // 可选
+          .setAccessKeyId(accessKeyId)
+          .setAccessKeySecret(accessKeySecret)
+          .setRoleArn("<your-role-arn>")  // 或从环境变量 ALIBABA_CLOUD_ROLE_ARN 获取
+          .setRoleSessionName("<session-name>")
+          .setPolicy("<policy>")  // 可选
+          .setExternalId("<external-id>")  // 可选
           .setRoleSessionExpiration(3600);  // 可选
     
     Client client(config);
@@ -271,15 +326,25 @@ int main() {
 
 如呼叫中心(CCC)需用此凭证，请自行申请维护 Bearer Token。
 
+**注意：BearerToken 应从环境变量或安全服务获取！**
+
 ```cpp
 #include <alibabacloud/credentials/Client.hpp>
+#include <cstdlib>
 
 using namespace AlibabaCloud::Credentials;
 
 int main() {
+    // 从环境变量或安全服务获取 BearerToken
+    const char* bearerToken = std::getenv("ALIBABA_CLOUD_BEARER_TOKEN");
+    
+    if (!bearerToken) {
+        return 1;
+    }
+    
     Models::Config config;
     config.setType("bearer")
-          .setBearerToken("BearerToken");
+          .setBearerToken(bearerToken);
     
     Client client(config);
     

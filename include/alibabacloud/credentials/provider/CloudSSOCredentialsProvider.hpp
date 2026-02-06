@@ -57,7 +57,7 @@ private:
   int64_t connectTimeout_ = 10000;  // Connection timeout in milliseconds
   int64_t readTimeout_ = 5000;      // Read timeout in milliseconds
 };
-};
+
 } // namespace Credentials
 } // namespace AlibabaCloud
 

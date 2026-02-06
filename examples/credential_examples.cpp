@@ -57,11 +57,26 @@ void defaultCredentialsProviderChainExample() {
 // ============================================================================
 void accessKeyExample() {
     std::cout << "=== 2. AccessKey Credentials ===" << std::endl;
+    std::cout << "Note: AccessKey should NEVER be hardcoded in your code!" << std::endl;
+    std::cout << "Please set environment variables:" << std::endl;
+    std::cout << "  - ALIBABA_CLOUD_ACCESS_KEY_ID" << std::endl;
+    std::cout << "  - ALIBABA_CLOUD_ACCESS_KEY_SECRET" << std::endl;
+    std::cout << std::endl;
+    
+    // Get credentials from environment variables
+    const char* accessKeyId = std::getenv("ALIBABA_CLOUD_ACCESS_KEY_ID");
+    const char* accessKeySecret = std::getenv("ALIBABA_CLOUD_ACCESS_KEY_SECRET");
+    
+    if (!accessKeyId || !accessKeySecret) {
+        std::cout << "  Skipped: Environment variables not set." << std::endl;
+        std::cout << std::endl;
+        return;
+    }
     
     Models::Config config;
     config.setType("access_key")
-          .setAccessKeyId("<your-access-key-id>")
-          .setAccessKeySecret("<your-access-key-secret>");
+          .setAccessKeyId(accessKeyId)
+          .setAccessKeySecret(accessKeySecret);
     
     Client client(config);
     
@@ -77,12 +92,28 @@ void accessKeyExample() {
 // ============================================================================
 void stsExample() {
     std::cout << "=== 3. STS Credentials ===" << std::endl;
+    std::cout << "Note: Get STS credentials from environment variables." << std::endl;
+    std::cout << "Please set:" << std::endl;
+    std::cout << "  - ALIBABA_CLOUD_ACCESS_KEY_ID" << std::endl;
+    std::cout << "  - ALIBABA_CLOUD_ACCESS_KEY_SECRET" << std::endl;
+    std::cout << "  - ALIBABA_CLOUD_SECURITY_TOKEN" << std::endl;
+    std::cout << std::endl;
+    
+    const char* accessKeyId = std::getenv("ALIBABA_CLOUD_ACCESS_KEY_ID");
+    const char* accessKeySecret = std::getenv("ALIBABA_CLOUD_ACCESS_KEY_SECRET");
+    const char* securityToken = std::getenv("ALIBABA_CLOUD_SECURITY_TOKEN");
+    
+    if (!accessKeyId || !accessKeySecret || !securityToken) {
+        std::cout << "  Skipped: Environment variables not set." << std::endl;
+        std::cout << std::endl;
+        return;
+    }
     
     Models::Config config;
     config.setType("sts")
-          .setAccessKeyId("<your-access-key-id>")
-          .setAccessKeySecret("<your-access-key-secret>")
-          .setSecurityToken("<your-security-token>");
+          .setAccessKeyId(accessKeyId)
+          .setAccessKeySecret(accessKeySecret)
+          .setSecurityToken(securityToken);
     
     Client client(config);
     
@@ -99,13 +130,28 @@ void stsExample() {
 // ============================================================================
 void ramRoleArnExample() {
     std::cout << "=== 4. RamRoleArn Credentials ===" << std::endl;
-    std::cout << "Note: This requires valid AK/SK and Role ARN to work." << std::endl;
+    std::cout << "Note: This requires valid credentials from environment variables." << std::endl;
+    std::cout << "Please set:" << std::endl;
+    std::cout << "  - ALIBABA_CLOUD_ACCESS_KEY_ID" << std::endl;
+    std::cout << "  - ALIBABA_CLOUD_ACCESS_KEY_SECRET" << std::endl;
+    std::cout << "  - ALIBABA_CLOUD_ROLE_ARN (optional, can set in config)" << std::endl;
+    std::cout << "  - ALIBABA_CLOUD_ROLE_SESSION_NAME (optional)" << std::endl;
+    std::cout << std::endl;
+    
+    const char* accessKeyId = std::getenv("ALIBABA_CLOUD_ACCESS_KEY_ID");
+    const char* accessKeySecret = std::getenv("ALIBABA_CLOUD_ACCESS_KEY_SECRET");
+    
+    if (!accessKeyId || !accessKeySecret) {
+        std::cout << "  Skipped: Environment variables not set." << std::endl;
+        std::cout << std::endl;
+        return;
+    }
     
     Models::Config config;
     config.setType("ram_role_arn")
-          .setAccessKeyId("<your-access-key-id>")
-          .setAccessKeySecret("<your-access-key-secret>")
-          .setRoleArn("<your-role-arn>")
+          .setAccessKeyId(accessKeyId)
+          .setAccessKeySecret(accessKeySecret)
+          .setRoleArn("<your-role-arn>")  // Or from env: ALIBABA_CLOUD_ROLE_ARN
           .setRoleSessionName("<your-role-session-name>")
           // Optional parameters
           .setPolicy("<your-policy>")
@@ -116,9 +162,10 @@ void ramRoleArnExample() {
     std::cout << "  RoleArn: " << config.getRoleArn() << std::endl;
     std::cout << "  RoleSessionName: " << config.getRoleSessionName() << std::endl;
     std::cout << "  DurationSeconds: " << config.getDurationSeconds() << std::endl;
+    std::cout << "  Note: Actual client creation skipped (requires valid Role ARN)" << std::endl;
     std::cout << std::endl;
     
-    // Uncomment to actually create client (requires valid credentials)
+    // Uncomment to actually create client (requires valid credentials and Role ARN)
     // Client client(config);
     // auto credential = client.getCredential();
 }
@@ -216,11 +263,21 @@ void urlCredentialExample() {
 void bearerTokenExample() {
     std::cout << "=== 8. BearerToken Credentials ===" << std::endl;
     std::cout << "Note: Used for Cloud Call Centre (CCC) and similar services." << std::endl;
+    std::cout << "Get Bearer Token from your service provider." << std::endl;
+    std::cout << "Please set: ALIBABA_CLOUD_BEARER_TOKEN" << std::endl;
     std::cout << std::endl;
+    
+    const char* bearerToken = std::getenv("ALIBABA_CLOUD_BEARER_TOKEN");
+    
+    if (!bearerToken) {
+        std::cout << "  Skipped: Environment variable ALIBABA_CLOUD_BEARER_TOKEN not set." << std::endl;
+        std::cout << std::endl;
+        return;
+    }
     
     Models::Config config;
     config.setType("bearer")
-          .setBearerToken("<your-bearer-token>");
+          .setBearerToken(bearerToken);
     
     Client client(config);
     

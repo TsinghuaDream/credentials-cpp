@@ -1,5 +1,7 @@
 # Alibaba Cloud Credentials C++ SDK Examples
 
+[English](README.md) | [简体中文](README-zh-CN.md)
+
 This directory contains example code demonstrating how to use the Alibaba Cloud Credentials C++ SDK.
 
 ## Examples

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <alibabacloud/credential/provider/ProfileProvider.hpp>
+#include <alibabacloud/credentials/provider/ProfileProvider.hpp>
 #include <cstdlib>
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -11,7 +11,7 @@ static inline int unsetenv(const char* name) {
 }
 #endif
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 // ==================== ProfileProvider Tests ====================
 
@@ -102,7 +102,7 @@ TEST_F(ProfileProviderTest, NonExistentProfileThrows) {
   // Should throw when trying to get credential from non-existent/invalid profile
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 // Test that provider can handle different credential types from profile

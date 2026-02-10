@@ -1,11 +1,12 @@
-#include <alibabacloud/credential/AuthUtil.hpp>
-#include <alibabacloud/credential/provider/CloudSSOCredentialsProvider.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
+#include <alibabacloud/credentials/provider/CloudSSOCredentialsProvider.hpp>
 #include <darabonba/Core.hpp>
 #include <darabonba/http/Query.hpp>
 #include <memory>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 const std::string CloudSSOCredentialsProvider::CLOUD_SSO_ENDPOINT =
     "cloudsso.aliyuncs.com";
@@ -35,7 +36,7 @@ bool CloudSSOCredentialsProvider::refreshCredential() const {
   auto future = Darabonba::Core::doAction(req, runtime);
   auto resp = future.get();
   if (resp->getStatusCode() != 200) {
-    throw Darabonba::Exception(CLOUD_SSO_FETCH_ERROR_MSG + " Status code is " +
+    throw CredentialException(CLOUD_SSO_FETCH_ERROR_MSG + " Status code is " +
                                std::to_string(resp->getStatusCode()) +
                                ". Body is " +
                                Darabonba::Stream::readAsString(resp->getBody()));
@@ -44,7 +45,7 @@ bool CloudSSOCredentialsProvider::refreshCredential() const {
   auto result = Darabonba::Stream::readAsJSON(resp->getBody());
   if (result.contains("Code") &&
       result["Code"].get<std::string>() != "Success") {
-    throw Darabonba::Exception(CLOUD_SSO_FETCH_ERROR_MSG +
+    throw CredentialException(CLOUD_SSO_FETCH_ERROR_MSG +
                                " Response: " + result.dump());
   }
 
@@ -62,5 +63,5 @@ bool CloudSSOCredentialsProvider::refreshCredential() const {
   return true;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

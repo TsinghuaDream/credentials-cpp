@@ -1,13 +1,14 @@
 #include <memory>
 
 #include <darabonba/Env.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
 
-#include <alibabacloud/credential/provider/AccessKeyProvider.hpp>
-#include <alibabacloud/credential/provider/EnvironmentVariableProvider.hpp>
-#include <alibabacloud/credential/provider/StsProvider.hpp>
+#include <alibabacloud/credentials/provider/AccessKeyProvider.hpp>
+#include <alibabacloud/credentials/provider/EnvironmentVariableProvider.hpp>
+#include <alibabacloud/credentials/provider/StsProvider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 std::unique_ptr<Provider> EnvironmentVariableProvider::createProvider() {
   const auto accessKeyId =
@@ -25,14 +26,12 @@ std::unique_ptr<Provider> EnvironmentVariableProvider::createProvider() {
         new StsProvider(accessKeyId, accessKeySecret, securityToken));
   }
   if (accessKeyId.empty()) {
-    throw Darabonba::Exception(
-        "Environment variable accessKeyId cannot be empty");
+    throw CredentialException(std::string("Environment variable ALIBABA_CLOUD_ACCESS_KEY_ID cannot be empty"));
   }
   if (accessKeySecret.empty()) {
-    throw Darabonba::Exception(
-        "Environment variable accessKeySecret cannot be empty");
+    throw CredentialException(std::string("Environment variable ALIBABA_CLOUD_ACCESS_KEY_SECRET cannot be empty"));
   }
   return nullptr;
 }
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

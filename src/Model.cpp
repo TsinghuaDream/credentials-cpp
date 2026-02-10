@@ -1,8 +1,8 @@
-#include <alibabacloud/credential/AuthUtil.hpp>
-#include <alibabacloud/credential/Model.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
+#include <alibabacloud/credentials/Model.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 namespace Models {
 
 std::string Config::getRoleSessionName() const {
@@ -14,5 +14,5 @@ std::string Config::getRoleSessionName() const {
 }
 
 } // namespace Models
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

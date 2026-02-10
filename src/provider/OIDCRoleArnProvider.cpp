@@ -1,17 +1,17 @@
 #include <fstream>
 
-#include <darabonba/Exception.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
 #include <darabonba/Core.hpp>
 
-#include <alibabacloud/credential/AuthUtil.hpp>
-#include <alibabacloud/credential/provider/OIDCRoleArnProvider.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
+#include <alibabacloud/credentials/provider/OIDCRoleArnProvider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 bool OIDCRoleArnProvider::refreshCredential() const {
   std::ifstream ifs(oidcTokenFilePath_);
   if (!ifs) {
-    throw Darabonba::Exception("Can't open " + oidcTokenFilePath_);
+    throw CredentialException("Can't open " + oidcTokenFilePath_);
   }
   std::string oidcToken((std::istreambuf_iterator<char>(ifs)),
                         (std::istreambuf_iterator<char>()));
@@ -53,7 +53,7 @@ bool OIDCRoleArnProvider::refreshCredential() const {
   auto future = Darabonba::Core::doAction(req, runtime);
   auto resp = future.get();
   if (resp->getStatusCode() != 200) {
-    throw Darabonba::Exception(Darabonba::Stream::readAsString(resp->getBody()));
+    throw CredentialException(Darabonba::Stream::readAsString(resp->getBody()));
   }
   auto result = Darabonba::Stream::readAsJSON(resp->getBody());
   auto &credential = result["Credentials"];
@@ -64,5 +64,5 @@ bool OIDCRoleArnProvider::refreshCredential() const {
   return true;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

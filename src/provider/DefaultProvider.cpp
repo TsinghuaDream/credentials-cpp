@@ -1,14 +1,15 @@
 #include <darabonba/Env.hpp>
-#include <darabonba/Exception.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
 
-#include <alibabacloud/credential/provider/DefaultProvider.hpp>
-#include <alibabacloud/credential/provider/EcsRamRoleProvider.hpp>
-#include <alibabacloud/credential/provider/EnvironmentVariableProvider.hpp>
-#include <alibabacloud/credential/provider/OIDCRoleArnProvider.hpp>
-#include <alibabacloud/credential/provider/ProfileProvider.hpp>
-#include <alibabacloud/credential/provider/URLProvider.hpp>
+#include <alibabacloud/credentials/provider/DefaultProvider.hpp>
+#include <alibabacloud/credentials/provider/CLIProfileProvider.hpp>
+#include <alibabacloud/credentials/provider/EcsRamRoleProvider.hpp>
+#include <alibabacloud/credentials/provider/EnvironmentVariableProvider.hpp>
+#include <alibabacloud/credentials/provider/OIDCRoleArnProvider.hpp>
+#include <alibabacloud/credentials/provider/ProfileProvider.hpp>
+#include <alibabacloud/credentials/provider/URLProvider.hpp>
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 DefaultProvider::DefaultProvider() {
 
@@ -24,6 +25,9 @@ DefaultProvider::DefaultProvider() {
     providers_.emplace_back(new OIDCRoleArnProvider(
         roleArn, oidcProviderArn, oidcTokenFile, roleSessionName));
   }
+
+  // Add CLIProfileProvider to match Java implementation
+  providers_.emplace_back(new CLIProfileProvider());
 
   providers_.emplace_back(new ProfileProvider());
 
@@ -60,6 +64,9 @@ DefaultProvider::DefaultProvider(std::shared_ptr<Models::Config> config)
         roleArn, oidcProviderArn, oidcTokenFile, roleSessionName));
   }
 
+  // Add CLIProfileProvider to match Java implementation
+  providers_.emplace_back(new CLIProfileProvider());
+
   providers_.emplace_back(new ProfileProvider());
 
   // Check if ECS metadata access is disabled
@@ -79,5 +86,5 @@ DefaultProvider::DefaultProvider(std::shared_ptr<Models::Config> config)
   }
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

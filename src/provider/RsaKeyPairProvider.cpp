@@ -1,12 +1,13 @@
-#include <alibabacloud/credential/AuthUtil.hpp>
-#include <alibabacloud/credential/provider/RsaKeyPairProvider.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
+#include <alibabacloud/credentials/provider/RsaKeyPairProvider.hpp>
 #include <darabonba/Core.hpp>
 #include <darabonba/encode/Encoder.hpp>
 #include <darabonba/http/Query.hpp>
 #include <darabonba/signature/Signer.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 bool RsaKeyPairProvider::refreshCredential() const {
   Darabonba::Http::Query query = {
@@ -38,11 +39,11 @@ bool RsaKeyPairProvider::refreshCredential() const {
   auto future = Darabonba::Core::doAction(req);
   auto resp = future.get();
   if (resp->getStatusCode() != 200) {
-    throw Darabonba::Exception(Darabonba::Stream::readAsString(resp->getBody()));
+    throw CredentialException(Darabonba::Stream::readAsString(resp->getBody()));
   }
   auto result = Darabonba::Stream::readAsJSON(resp->getBody());
   if (result["Code"].get<std::string>() != "Success") {
-    throw Darabonba::Exception(result.dump());
+    throw CredentialException(result.dump());
   }
   auto &sessionAccessKey = result["SessionAccessKey"];
   this->expiration_ =
@@ -54,5 +55,5 @@ bool RsaKeyPairProvider::refreshCredential() const {
   return true;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

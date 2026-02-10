@@ -1,10 +1,15 @@
-#include <alibabacloud/credential/Constant.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
+// Ini
 const std::string Constant::INI_ACCESS_KEY_ID = "access_key_id";
 const std::string Constant::INI_ACCESS_KEY_SECRET = "access_key_secret";
 const std::string Constant::INI_TYPE = "type";
+const std::string Constant::INI_TYPE_RAM = "ecs_ram_role";
+const std::string Constant::INI_TYPE_ARN = "ram_role_arn";
+const std::string Constant::INI_TYPE_OIDC = "oidc_role_arn";
+const std::string Constant::INI_TYPE_KEY_PAIR = "rsa_key_pair";
 const std::string Constant::INI_PUBLIC_KEY_ID = "public_key_id";
 const std::string Constant::INI_PRIVATE_KEY_FILE = "private_key_file";
 const std::string Constant::INI_PRIVATE_KEY = "private_key";
@@ -16,6 +21,7 @@ const std::string Constant::INI_OIDC_PROVIDER_ARN = "oidc_provider_arn";
 const std::string Constant::INI_OIDC_TOKEN_FILE_PATH = "oidc_token_file_path";
 const std::string Constant::INI_ENABLE = "enable";
 
+// Type
 const std::string Constant::ACCESS_KEY = "access_key";
 const std::string Constant::STS = "sts";
 const std::string Constant::ECS_RAM_ROLE = "ecs_ram_role";
@@ -27,6 +33,7 @@ const std::string Constant::URL_STS = "credentials_uri";
 const std::string Constant::CLOUD_SSO = "sso";
 const std::string Constant::OAUTH = "oauth";
 
+// Environment Variables
 const std::string Constant::ENV_STS_REGION = "ALIBABA_CLOUD_STS_REGION";
 const std::string Constant::ENV_VPC_ENDPOINT_ENABLED =
     "ALIBABA_CLOUD_VPC_ENDPOINT_ENABLED";
@@ -51,5 +58,5 @@ const std::string Constant::ENV_OAUTH_CLIENT_SECRET =
     "ALIBABA_CLOUD_CLIENT_SECRET";
 const std::string Constant::ENV_OAUTH_TOKEN_ENDPOINT =
     "ALIBABA_CLOUD_OAUTH_TOKEN_ENDPOINT";
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

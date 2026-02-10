@@ -10,12 +10,12 @@ static inline int unsetenv(const char* name) {
 }
 #endif
 
-#include <alibabacloud/credential/provider/EnvironmentVariableProvider.hpp>
-#include <alibabacloud/credential/provider/DefaultProvider.hpp>
-#include <alibabacloud/credential/Constant.hpp>
+#include <alibabacloud/credentials/provider/EnvironmentVariableProvider.hpp>
+#include <alibabacloud/credentials/provider/DefaultProvider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
 #include <darabonba/Env.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 // Cross-platform env helpers used by tests
 static inline void set_env(const char* k, const char* v, int overwrite = 1){
@@ -106,7 +106,7 @@ TEST_F(EnvironmentVariableProviderTest, MissingAccessKeyId) {
   
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 TEST_F(EnvironmentVariableProviderTest, MissingAccessKeySecret) {
@@ -117,7 +117,7 @@ TEST_F(EnvironmentVariableProviderTest, MissingAccessKeySecret) {
   
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 TEST_F(EnvironmentVariableProviderTest, EmptyAccessKeyId) {
@@ -128,7 +128,7 @@ TEST_F(EnvironmentVariableProviderTest, EmptyAccessKeyId) {
   
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 TEST_F(EnvironmentVariableProviderTest, EmptyAccessKeySecret) {
@@ -139,7 +139,7 @@ TEST_F(EnvironmentVariableProviderTest, EmptyAccessKeySecret) {
   
   EXPECT_THROW({
     provider.getCredential();
-  }, Darabonba::Exception);
+  }, CredentialException);
 }
 
 TEST_F(EnvironmentVariableProviderTest, SecurityTokenOptional) {

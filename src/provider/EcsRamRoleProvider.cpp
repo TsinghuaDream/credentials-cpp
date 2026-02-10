@@ -1,17 +1,22 @@
-#include <alibabacloud/credential/AuthUtil.hpp>
-#include <alibabacloud/credential/provider/EcsRamRoleProvider.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
+#include <alibabacloud/credentials/provider/EcsRamRoleProvider.hpp>
 #include <darabonba/Core.hpp>
 #include <darabonba/Env.hpp>
 #include <darabonba/encode/Encoder.hpp>
 #include <memory>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
-// C++11 requires out-of-class definition for constexpr static members
-constexpr int EcsRamRoleProvider::DEFAULT_READ_TIMEOUT;
-constexpr int EcsRamRoleProvider::DEFAULT_CONNECT_TIMEOUT;
+// Note: In C++17+, inline variables make class-external definitions redundant.
+// However, for C++11/14 compatibility, we need these definitions when the constant
+// is ODR-used (e.g., as a function parameter or with std::to_string).
+#if __cplusplus < 201703L
 constexpr int EcsRamRoleProvider::DEFAULT_METADATA_TOKEN_DURATION;
+constexpr int EcsRamRoleProvider::DEFAULT_CONNECT_TIMEOUT;
+constexpr int EcsRamRoleProvider::DEFAULT_READ_TIMEOUT;
+#endif
 
 // 常量定义（对应 Python SDK）
 const std::string EcsRamRoleProvider::URL_IN_ECS_META_DATA =
@@ -33,7 +38,8 @@ EcsRamRoleProvider::EcsRamRoleProvider(
       roleName_(config->hasRoleName() ? config->getRoleName() : ""),
       disableIMDSv1_(config->hasDisableIMDSv1() ? config->getDisableIMDSv1()
                                                 : false),
-      shouldRefresh_(false), asyncUpdateEnabled_(asyncUpdateEnabled),
+      shouldRefresh_(false),
+      asyncUpdateEnabled_(asyncUpdateEnabled),
       connectTimeout_(config->hasConnectTimeout() ? config->getConnectTimeout()
                                                   : DEFAULT_CONNECT_TIMEOUT),
       readTimeout_(config->hasTimeout() ? config->getTimeout()
@@ -111,13 +117,13 @@ std::string EcsRamRoleProvider::getMetadataToken() const {
     const auto resp = future.get();
 
     if (resp->getStatusCode() != 200) {
-      throw Darabonba::Exception(
+      throw CredentialException(
           ECS_METADATA_TOKEN_FETCH_ERROR_MSG +
           " HttpCode=" + std::to_string(resp->getStatusCode()));
     }
 
     return Darabonba::IFStream::readAsString(resp->getBody());
-  } catch (const std::exception &e) {
+  } catch (const std::exception&) {
     // 如果禁用了 IMDSv1，抛出异常
     if (disableIMDSv1_) {
       throw;
@@ -155,7 +161,7 @@ RefreshResult EcsRamRoleProvider::doRefresh() const {
   auto resp = future.get();
 
   if (resp->getStatusCode() != 200) {
-    throw Darabonba::Exception(ECS_METADATA_FETCH_ERROR_MSG + " HttpCode=" +
+    throw CredentialException(ECS_METADATA_FETCH_ERROR_MSG + " HttpCode=" +
                                std::to_string(resp->getStatusCode()));
   }
 
@@ -164,7 +170,7 @@ RefreshResult EcsRamRoleProvider::doRefresh() const {
 
   std::string contentCode = result["Code"].get<std::string>();
   if (contentCode != "Success") {
-    throw Darabonba::Exception(ECS_METADATA_FETCH_ERROR_MSG +
+    throw CredentialException(ECS_METADATA_FETCH_ERROR_MSG +
                                " Code=" + contentCode);
   }
 
@@ -217,7 +223,7 @@ std::string EcsRamRoleProvider::getRoleName() const {
   auto resp = future.get();
 
   if (resp->getStatusCode() != 200) {
-    throw Darabonba::Exception(ECS_METADATA_FETCH_ERROR_MSG + " HttpCode=" +
+    throw CredentialException(ECS_METADATA_FETCH_ERROR_MSG + " HttpCode=" +
                                std::to_string(resp->getStatusCode()));
   }
 
@@ -250,5 +256,5 @@ int64_t EcsRamRoleProvider::getPrefetchTime(int64_t expiration) {
   return now + 60 * 60;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

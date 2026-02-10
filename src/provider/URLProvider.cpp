@@ -1,10 +1,11 @@
 #include <darabonba/Core.hpp>
 
-#include <alibabacloud/credential/AuthUtil.hpp>
-#include <alibabacloud/credential/provider/URLProvider.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
+#include <alibabacloud/credentials/provider/URLProvider.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 bool URLProvider::refreshCredential() const {
   // 使用 getNewRequest 创建带 User-Agent 的请求（对应 Python SDK）
   auto req = AuthUtil::getNewRequest(url_);
@@ -15,11 +16,11 @@ bool URLProvider::refreshCredential() const {
   auto future = Darabonba::Core::doAction(req, runtime);
   auto resp = future.get();
   if (resp->getStatusCode() != 200) {
-    throw Darabonba::Exception(Darabonba::Stream::readAsString(resp->getBody()));
+    throw CredentialException(Darabonba::Stream::readAsString(resp->getBody()));
   }
   const auto &result = Darabonba::Stream::readAsJSON(resp->getBody());
   if (result["Code"].get<std::string>() != "Success") {
-    throw Darabonba::Exception(result.dump());
+    throw CredentialException(result.dump());
   }
   this->expiration_ = strtotime(result["Expiration"].get<std::string>());
   credential_.setAccessKeyId(result["AccessKeyId"].get<std::string>())
@@ -28,5 +29,5 @@ bool URLProvider::refreshCredential() const {
   return true;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

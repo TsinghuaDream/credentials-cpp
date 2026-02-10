@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include <alibabacloud/credential/Model.hpp>
-#include <alibabacloud/credential/Constant.hpp>
+#include <alibabacloud/credentials/Model.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 // ==================== Config Timeout and IMDSv1 Tests ====================
 

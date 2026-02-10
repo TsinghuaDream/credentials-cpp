@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
-#include <alibabacloud/credential/Credential.hpp>
-#include <alibabacloud/credential/provider/AccessKeyProvider.hpp>
-#include <alibabacloud/credential/provider/BearerTokenProvider.hpp>
-#include <alibabacloud/credential/provider/StsProvider.hpp>
-#include <alibabacloud/credential/Constant.hpp>
+#include <alibabacloud/credentials/Client.hpp>
+#include <alibabacloud/credentials/provider/AccessKeyProvider.hpp>
+#include <alibabacloud/credentials/provider/BearerTokenProvider.hpp>
+#include <alibabacloud/credentials/provider/StsProvider.hpp>
+#include <alibabacloud/credentials/Constant.hpp>
 #include <vector>
 #include <thread>
 
-using namespace AlibabaCloud::Credential;
+using namespace AlibabaCloud::Credentials;
 
 // ==================== Integration and Complex Scenario Tests ====================
 

@@ -4,20 +4,16 @@
 #include <darabonba/Env.hpp>
 #include <darabonba/http/Request.hpp>
 
-#include <alibabacloud/credential/AuthUtil.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
-std::string AuthUtil::clientType_ =
-    Darabonba::Env::getEnv("ALIBABA_CLOUD_PROFILE", "default");
-
-bool AuthUtil::setClientType(const std::string &clientType) {
-  clientType_ = clientType;
-  return true;
+std::string AuthUtil::clientType() {
+  // Read environment variable each time, no global state
+  std::string profile = Darabonba::Env::getEnv("ALIBABA_CLOUD_PROFILE");
+  return profile.empty() ? "default" : profile;
 }
-
-std::string AuthUtil::clientType() { return clientType_; }
 
 std::string AuthUtil::generateSessionName() {
   const auto now = std::chrono::system_clock::now();
@@ -161,5 +157,5 @@ AuthUtil::getNewRequest(const std::string &url,
   return req;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

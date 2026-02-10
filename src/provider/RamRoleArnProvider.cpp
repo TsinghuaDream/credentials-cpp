@@ -6,11 +6,15 @@
 #include <darabonba/http/Query.hpp>
 #include <darabonba/signature/Signer.hpp>
 
-#include <alibabacloud/credential/AuthUtil.hpp>
-#include <alibabacloud/credential/provider/RamRoleArnProvider.hpp>
+#include <alibabacloud/credentials/AuthUtil.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
+#include <alibabacloud/credentials/provider/RamRoleArnProvider.hpp>
+#include <darabonba/Core.hpp>
+#include <darabonba/http/Query.hpp>
+#include <memory>
 
 namespace AlibabaCloud {
-namespace Credential {
+namespace Credentials {
 
 bool RamRoleArnProvider::refreshCredential() const {
   Darabonba::Http::Query query = {
@@ -86,12 +90,11 @@ bool RamRoleArnProvider::refreshCredential() const {
   auto future = Darabonba::Core::doAction(req, runtime);
   auto resp = future.get();
   if (resp->getStatusCode() != 200) {
-    throw Darabonba::Exception(Darabonba::Stream::readAsString(resp->getBody()));
+    throw CredentialException(Darabonba::Stream::readAsString(resp->getBody()));
   }
-
   auto result = Darabonba::Stream::readAsJSON(resp->getBody());
   if (result["Code"].get<std::string>() != "Success") {
-    throw Darabonba::Exception(result.dump());
+    throw CredentialException(result.dump());
   }
   auto &credential = result["Credentials"];
   this->expiration_ = strtotime(credential["Expiration"].get<std::string>());
@@ -101,5 +104,5 @@ bool RamRoleArnProvider::refreshCredential() const {
   return true;
 }
 
-} // namespace Credential
+} // namespace Credentials
 } // namespace AlibabaCloud

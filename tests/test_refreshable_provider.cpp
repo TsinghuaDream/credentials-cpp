@@ -325,8 +325,76 @@ TEST(RefreshableProviderTest, RefreshResultStructure) {
 
 TEST(RefreshableProviderTest, RefreshResultDefaultConstructor) {
   RefreshResult result;
-  
+
   EXPECT_EQ(0, result.staleTime);
   EXPECT_EQ(0, result.prefetchTime);
   EXPECT_TRUE(result.credential.empty());
+}
+
+// ==================== Additional Edge Case Tests ====================
+
+TEST(RefreshableProviderTest, AllowBehaviorReturnsStaleWhenRefreshFails) {
+  TestRefreshableProvider provider(StaleValueBehavior::ALLOW_);
+
+  // Get initial credential
+  auto credential1 = provider.getCredential();
+  EXPECT_EQ(1, provider.getRefreshCount());
+
+  // Set very short expiration and make refresh fail
+  provider.setCustomExpiration(static_cast<int64_t>(std::time(nullptr)) - 100);
+  provider.setShouldFail(true);
+
+  // Allow mode should return stale value even when expired
+  EXPECT_NO_THROW({
+    auto credential2 = provider.getCredential();
+    EXPECT_EQ(credential1.getAccessKeyId(), credential2.getAccessKeyId());
+  });
+}
+
+TEST(RefreshableProviderTest, StrictBehaviorThrowsWhenNoValidCache) {
+  TestRefreshableProvider provider(StaleValueBehavior::STRICT_);
+  provider.setShouldFail(true);
+
+  // No cache, refresh fails -> should throw
+  EXPECT_THROW({
+    provider.getCredential();
+  }, std::exception);
+}
+
+TEST(RefreshableProviderTest, CredentialCachedCorrectly) {
+  TestRefreshableProvider provider;
+
+  // Get credential multiple times
+  auto cred1 = provider.getCredential();
+  auto cred2 = provider.getCredential();
+  auto cred3 = provider.getCredential();
+
+  // All should be the same (cached)
+  EXPECT_EQ(cred1.getAccessKeyId(), cred2.getAccessKeyId());
+  EXPECT_EQ(cred2.getAccessKeyId(), cred3.getAccessKeyId());
+  EXPECT_EQ(1, provider.getRefreshCount());
+}
+
+TEST(RefreshableProviderTest, ExpirationBoundaryTest) {
+  TestRefreshableProvider provider;
+
+  // Set expiration exactly at prefetch threshold boundary
+  int64_t thresholdTime = static_cast<int64_t>(std::time(nullptr)) +
+                          RefreshableProvider::PREFETCH_THRESHOLD + 10;
+  provider.setCustomExpiration(thresholdTime);
+
+  auto credential = provider.getCredential();
+  EXPECT_EQ(1, provider.getRefreshCount());
+}
+
+TEST(RefreshableProviderTest, MultipleProviderInstancesIndependent) {
+  TestRefreshableProvider provider1;
+  TestRefreshableProvider provider2;
+
+  auto cred1 = provider1.getCredential();
+  auto cred2 = provider2.getCredential();
+
+  // Each provider should have its own state
+  EXPECT_EQ(1, provider1.getRefreshCount());
+  EXPECT_EQ(1, provider2.getRefreshCount());
 }

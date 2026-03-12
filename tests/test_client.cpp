@@ -13,6 +13,7 @@
 #include <alibabacloud/credentials/provider/CloudSSOCredentialsProvider.hpp>
 #include <alibabacloud/credentials/provider/OAuthCredentialsProvider.hpp>
 #include <memory>
+#include <fstream>
 
 using namespace AlibabaCloud::Credentials;
 
@@ -149,27 +150,43 @@ TEST_F(ClientTest, RamRoleArnClient) {
 }
 
 TEST_F(ClientTest, RsaKeyPairClient) {
+    // Create a temporary private key file
+    std::string keyPath = "/tmp/test_rsa_client_key.pem";
+    std::ofstream keyFile(keyPath);
+    keyFile << "-----BEGIN RSA PRIVATE KEY-----\ntest_private_key_content\n-----END RSA PRIVATE KEY-----";
+    keyFile.close();
+
     Models::Config config;
     config.setPublicKeyId("test_public_key_id")
-          .setPrivateKeyFile("/path/to/private_key.pem")
+          .setPrivateKeyFile(keyPath)
           .setType(Constant::RSA_KEY_PAIR);
-    
+
     EXPECT_NO_THROW({
         Client client(config);
     });
+
+    std::remove(keyPath.c_str());
 }
 
 TEST_F(ClientTest, OIDCRoleArnClient) {
+    // Create a temporary OIDC token file
+    std::string tokenPath = "/tmp/test_oidc_client_token.txt";
+    std::ofstream tokenFile(tokenPath);
+    tokenFile << "test_oidc_token_content";
+    tokenFile.close();
+
     Models::Config config;
     config.setRoleArn("acs:ram::123456789:role/test-role")
           .setOidcProviderArn("acs:ram::123456789:oidc-provider/test")
-          .setOidcTokenFilePath("/path/to/oidc/token")
+          .setOidcTokenFilePath(tokenPath)
           .setRoleSessionName("test-session")
           .setType(Constant::OIDC_ROLE_ARN);
-    
+
     EXPECT_NO_THROW({
         Client client(config);
     });
+
+    std::remove(tokenPath.c_str());
 }
 
 TEST_F(ClientTest, URLProviderClient) {

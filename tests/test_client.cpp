@@ -12,10 +12,27 @@
 #include <alibabacloud/credentials/provider/URLProvider.hpp>
 #include <alibabacloud/credentials/provider/CloudSSOCredentialsProvider.hpp>
 #include <alibabacloud/credentials/provider/OAuthCredentialsProvider.hpp>
-#include <memory>
+#include <cstdlib>
 #include <fstream>
+#include <memory>
 
 using namespace AlibabaCloud::Credentials;
+
+// Cross-platform temporary directory helper
+static std::string getTempDir() {
+#ifdef _WIN32
+  const char* tempDir = std::getenv("TEMP");
+  if (!tempDir) {
+    tempDir = std::getenv("TMP");
+  }
+  if (!tempDir) {
+    return "C:\\Windows\\Temp";
+  }
+  return std::string(tempDir);
+#else
+  return "/tmp";
+#endif
+}
 
 // ==================== Client Constructor Tests ====================
 
@@ -151,7 +168,7 @@ TEST_F(ClientTest, RamRoleArnClient) {
 
 TEST_F(ClientTest, RsaKeyPairClient) {
     // Create a temporary private key file
-    std::string keyPath = "/tmp/test_rsa_client_key.pem";
+    std::string keyPath = getTempDir() + "/test_rsa_client_key.pem";
     std::ofstream keyFile(keyPath);
     keyFile << "-----BEGIN RSA PRIVATE KEY-----\ntest_private_key_content\n-----END RSA PRIVATE KEY-----";
     keyFile.close();
@@ -170,7 +187,7 @@ TEST_F(ClientTest, RsaKeyPairClient) {
 
 TEST_F(ClientTest, OIDCRoleArnClient) {
     // Create a temporary OIDC token file
-    std::string tokenPath = "/tmp/test_oidc_client_token.txt";
+    std::string tokenPath = getTempDir() + "/test_oidc_client_token.txt";
     std::ofstream tokenFile(tokenPath);
     tokenFile << "test_oidc_token_content";
     tokenFile.close();

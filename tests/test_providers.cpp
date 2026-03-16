@@ -8,9 +8,27 @@
 #include <alibabacloud/credentials/provider/URLProvider.hpp>
 #include <alibabacloud/credentials/provider/NeedFreshProvider.hpp>
 #include <alibabacloud/credentials/Constant.hpp>
+#include <cstdlib>
 #include <fstream>
+#include <iostream>
 
 using namespace AlibabaCloud::Credentials;
+
+// Cross-platform temporary directory helper
+static std::string getTempDir() {
+#ifdef _WIN32
+  const char* tempDir = std::getenv("TEMP");
+  if (!tempDir) {
+    tempDir = std::getenv("TMP");
+  }
+  if (!tempDir) {
+    return "C:\\Windows\\Temp";
+  }
+  return std::string(tempDir);
+#else
+  return "/tmp";
+#endif
+}
 
 // ==================== EcsRamRoleProvider Tests ====================
 
@@ -91,29 +109,29 @@ TEST(RamRoleArnProviderTest, WithPolicy) {
 
 TEST(OIDCRoleArnProviderTest, ConstructorWithConfig) {
   // Create a temporary OIDC token file for testing
-  std::string tokenPath = "/tmp/test_oidc_token.txt";
+  std::string tokenPath = getTempDir() + "/test_oidc_token.txt";
   std::ofstream tokenFile(tokenPath);
   tokenFile << "test_oidc_token_content";
   tokenFile.close();
-  
+
   auto config = std::make_shared<Models::Config>();
   config->setRoleArn("acs:ram::123456:role/oidc-test")
         .setOidcProviderArn("acs:ram::123456:oidc-provider/test")
         .setOidcTokenFilePath(tokenPath)
         .setRoleSessionName("oidc_session");
-  
+
   OIDCRoleArnProvider provider(config);
-  
+
   // Cleanup
   std::remove(tokenPath.c_str());
-  
+
   EXPECT_NO_THROW({
     // Provider created successfully
   });
 }
 
 TEST(OIDCRoleArnProviderTest, ConstructorWithParameters) {
-  std::string tokenPath = "/tmp/test_oidc_param.txt";
+  std::string tokenPath = getTempDir() + "/test_oidc_param.txt";
   std::ofstream tokenFile(tokenPath);
   tokenFile << "param_oidc_token";
   tokenFile.close();
@@ -136,7 +154,7 @@ TEST(OIDCRoleArnProviderTest, ConstructorWithParameters) {
 
 TEST(RsaKeyPairProviderTest, ConstructorWithConfig) {
   // Create a temporary private key file
-  std::string keyPath = "/tmp/test_rsa_key.pem";
+  std::string keyPath = getTempDir() + "/test_rsa_key.pem";
   std::ofstream keyFile(keyPath);
   keyFile << "-----BEGIN RSA PRIVATE KEY-----\ntest_private_key_content\n-----END RSA PRIVATE KEY-----";
   keyFile.close();
@@ -153,7 +171,7 @@ TEST(RsaKeyPairProviderTest, ConstructorWithConfig) {
 }
 
 TEST(RsaKeyPairProviderTest, ConstructorWithParameters) {
-  std::string keyPath = "/tmp/test_rsa_key_param.pem";
+  std::string keyPath = getTempDir() + "/test_rsa_key_param.pem";
   std::ofstream keyFile(keyPath);
   keyFile << "-----BEGIN RSA PRIVATE KEY-----\ntest_key_content\n-----END RSA PRIVATE KEY-----";
   keyFile.close();
@@ -166,7 +184,7 @@ TEST(RsaKeyPairProviderTest, ConstructorWithParameters) {
 }
 
 TEST(RsaKeyPairProviderTest, ConstructorWithStaleValueBehavior) {
-  std::string keyPath = "/tmp/test_rsa_stale.pem";
+  std::string keyPath = getTempDir() + "/test_rsa_stale.pem";
   std::ofstream keyFile(keyPath);
   keyFile << "test_key";
   keyFile.close();
@@ -188,7 +206,7 @@ TEST(RsaKeyPairProviderTest, ConstructorWithStaleValueBehavior) {
 }
 
 TEST(RsaKeyPairProviderTest, InheritsFromRefreshableProvider) {
-  std::string keyPath = "/tmp/test_rsa_inherit.pem";
+  std::string keyPath = getTempDir() + "/test_rsa_inherit.pem";
   std::ofstream keyFile(keyPath);
   keyFile << "test_key";
   keyFile.close();
@@ -431,7 +449,7 @@ TEST(RamRoleArnProviderTest, EmptyRoleArnThrowsException) {
 // ==================== OIDCRoleArnProvider RefreshableProvider Integration Tests ====================
 
 TEST(OIDCRoleArnProviderTest, ConstructorWithStaleValueBehavior) {
-  std::string tokenPath = "/tmp/test_oidc_stale.txt";
+  std::string tokenPath = getTempDir() + "/test_oidc_stale.txt";
   std::ofstream tokenFile(tokenPath);
   tokenFile << "test_token";
   tokenFile.close();
@@ -456,7 +474,7 @@ TEST(OIDCRoleArnProviderTest, ConstructorWithStaleValueBehavior) {
 }
 
 TEST(OIDCRoleArnProviderTest, ConstructorWithPrefetchStrategy) {
-  std::string tokenPath = "/tmp/test_oidc_strategy.txt";
+  std::string tokenPath = getTempDir() + "/test_oidc_strategy.txt";
   std::ofstream tokenFile(tokenPath);
   tokenFile << "test_token";
   tokenFile.close();
@@ -483,7 +501,7 @@ TEST(OIDCRoleArnProviderTest, ConstructorWithPrefetchStrategy) {
 }
 
 TEST(OIDCRoleArnProviderTest, EmptyRoleArnThrowsException) {
-  std::string tokenPath = "/tmp/test_oidc_empty_role.txt";
+  std::string tokenPath = getTempDir() + "/test_oidc_empty_role.txt";
   std::ofstream tokenFile(tokenPath);
   tokenFile << "test_token";
   tokenFile.close();
@@ -501,7 +519,7 @@ TEST(OIDCRoleArnProviderTest, EmptyRoleArnThrowsException) {
 }
 
 TEST(OIDCRoleArnProviderTest, EmptyOidcProviderArnThrowsException) {
-  std::string tokenPath = "/tmp/test_oidc_empty_provider.txt";
+  std::string tokenPath = getTempDir() + "/test_oidc_empty_provider.txt";
   std::ofstream tokenFile(tokenPath);
   tokenFile << "test_token";
   tokenFile.close();
@@ -595,7 +613,7 @@ TEST(RamRoleArnProviderTest, InheritsFromRefreshableProvider) {
 
 // Verify that OIDCRoleArnProvider is a RefreshableProvider
 TEST(OIDCRoleArnProviderTest, InheritsFromRefreshableProvider) {
-  std::string tokenPath = "/tmp/test_oidc_inherit.txt";
+  std::string tokenPath = getTempDir() + "/test_oidc_inherit.txt";
   std::ofstream tokenFile(tokenPath);
   tokenFile << "test_token";
   tokenFile.close();

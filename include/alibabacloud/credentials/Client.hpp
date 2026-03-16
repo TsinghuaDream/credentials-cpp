@@ -133,14 +133,19 @@ private:
 namespace nlohmann {
   template <>
   struct adl_serializer<std::shared_ptr<AlibabaCloud::Credentials::Client>> {
-    static void to_json(json &j, const std::shared_ptr<AlibabaCloud::Credentials::Client> client) {
-      j = reinterpret_cast<uintptr_t>(client.get());
+    static void to_json(json &j, const std::shared_ptr<AlibabaCloud::Credentials::Client> &client) {
+      if (client) {
+        j = client->toMap();
+      } else {
+        j = nullptr;
+      }
     }
 
     static std::shared_ptr<AlibabaCloud::Credentials::Client> from_json(const json &j) {
-      if (!j.is_null()) {
-        AlibabaCloud::Credentials::Client *ptr = reinterpret_cast<AlibabaCloud::Credentials::Client *>(j.get<uintptr_t>());
-        return std::make_shared<AlibabaCloud::Credentials::Client>(*ptr);
+      if (!j.is_null() && j.is_object()) {
+        auto client = std::make_shared<AlibabaCloud::Credentials::Client>();
+        client->fromMap(j);
+        return client;
       }
       return nullptr;
     }

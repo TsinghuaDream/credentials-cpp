@@ -51,12 +51,12 @@ public:
     threadStop_ = false;
 
     // Start thread if not running
-    if (!threadRunning_) {
+    if (!threadRunning_.load()) {
       // Wait for previous thread to finish if any
       if (thread_.joinable()) {
         thread_.join();
       }
-      threadRunning_ = true;
+      threadRunning_.store(true);
       thread_ = std::thread(&EcsScheduler::run, this);
     }
 
@@ -83,14 +83,14 @@ public:
    * @brief Check if async update is enabled
    */
   bool isAsyncUpdateEnabled() const {
-    return asyncUpdateEnabled_;
+    return asyncUpdateEnabled_.load();
   }
 
   /**
    * @brief Set async update enabled flag
    */
   void setAsyncUpdateEnabled(bool enabled) {
-    asyncUpdateEnabled_ = enabled;
+    asyncUpdateEnabled_.store(enabled);
   }
 
 private:
@@ -122,7 +122,7 @@ private:
                          [this]() { return threadStop_; })) {
           // Stop requested - check if we should really exit
           if (entries_.empty()) {
-            threadRunning_ = false;
+            threadRunning_.store(false);
             break;
           }
           // New entries added, reset stop flag
@@ -140,7 +140,6 @@ private:
       }
 
       for (const auto& callback : callbacks) {
-        if (threadStop_) break;
         try {
           callback();
         } catch (...) {
@@ -158,11 +157,11 @@ private:
   std::mutex mutex_;
   std::condition_variable cv_;
   std::thread thread_;
-  bool threadRunning_;  // Is thread currently running?
-  bool threadStop_;     // Should thread stop?
+  std::atomic<bool> threadRunning_;       // Is thread currently running?
+  bool threadStop_;                       // Should thread stop? (protected by mutex_)
   std::list<Entry> entries_;
   EntryId nextId_;
-  bool asyncUpdateEnabled_;
+  std::atomic<bool> asyncUpdateEnabled_;
 };
 
 } // namespace Credentials

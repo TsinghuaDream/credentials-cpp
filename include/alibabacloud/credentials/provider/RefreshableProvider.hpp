@@ -167,34 +167,45 @@ public:
 
   /**
    * @brief Get credential (thread safe)
+   * @note Returns a copy for safety. Uses copy-on-write pattern:
+   *       - Read: lock-free, just copy the cached shared_ptr
+   *       - Write: atomic replacement of the entire shared_ptr
+   *       This matches Python's implementation for optimal performance.
    */
-  virtual Models::CredentialModel& getCredential() override {
-    return const_cast<Models::CredentialModel&>(
-        static_cast<const RefreshableProvider*>(this)->getCredential());
-  }
-
-  virtual const Models::CredentialModel& getCredential() const override {
-    std::lock_guard<std::mutex> lock(accessMutex_);
+  virtual Models::CredentialModel getCredential() const override {
+    // Fast path: check if we need to refresh (lock-free)
+    // Copy the shared_ptr first (atomic operation)
+    auto cached = cachedValue_;
     
-    if (cacheIsStale()) {
-      // Cache expired, synchronous refresh
-      refreshCache();
-    } else if (shouldInitiateCachePrefetch()) {
-      // About to expire, check if async refresh is enabled
-      if (isAsyncUpdateEnabled()) {
-        // Async prefetch refresh (only if enabled)
-        prefetchCache();
-      } else {
-        // Synchronous refresh (if async is disabled)
+    bool needsRefresh = !cached || cacheIsStale(*cached);
+    bool needsPrefetch = !cached || shouldInitiateCachePrefetch(*cached);
+    
+    if (needsRefresh || needsPrefetch) {
+      // Slow path: need to refresh, acquire lock
+      std::lock_guard<std::mutex> lock(accessMutex_);
+      
+      // Re-check after acquiring lock (double-checked locking)
+      cached = cachedValue_;
+      needsRefresh = !cached || cacheIsStale(*cached);
+      needsPrefetch = !cached || shouldInitiateCachePrefetch(*cached);
+      
+      if (needsRefresh) {
         refreshCache();
+      } else if (needsPrefetch) {
+        if (isAsyncUpdateEnabled()) {
+          prefetchCache();
+        } else {
+          refreshCache();
+        }
       }
+      cached = cachedValue_;
     }
     
-    if (!cachedValue_) {
+    if (!cached) {
       throw std::runtime_error("No cached credential available");
     }
     
-    return cachedValue_->credential;
+    return cached->credential;
   }
 
 protected:
@@ -286,23 +297,37 @@ protected:
 
 private:
   /**
-   * @brief Check if cache is stale
+   * @brief Check if cache is stale (with cached value)
+   */
+  bool cacheIsStale(const RefreshResult& cached) const {
+    return getCurrentTime() >= cached.staleTime;
+  }
+
+  /**
+   * @brief Check if cache is stale (from member)
    */
   bool cacheIsStale() const {
     if (!cachedValue_) {
       return true;
     }
-    return getCurrentTime() >= cachedValue_->staleTime;
+    return cacheIsStale(*cachedValue_);
   }
 
   /**
-   * @brief Check if prefetch should be initiated
+   * @brief Check if prefetch should be initiated (with cached value)
+   */
+  bool shouldInitiateCachePrefetch(const RefreshResult& cached) const {
+    return getCurrentTime() >= cached.prefetchTime;
+  }
+
+  /**
+   * @brief Check if prefetch should be initiated (from member)
    */
   bool shouldInitiateCachePrefetch() const {
     if (!cachedValue_) {
       return true;
     }
-    return getCurrentTime() >= cachedValue_->prefetchTime;
+    return shouldInitiateCachePrefetch(*cachedValue_);
   }
 
   /**

@@ -19,6 +19,7 @@
 #endif
 
 #include <alibabacloud/credentials/provider/Provider.hpp>
+#include <darabonba/Logger.hpp>
 
 ALIBABACLOUD_CREDENTIALS_SUPPRESS_STL_WARNING_PUSH
 
@@ -344,7 +345,7 @@ private:
    */
   void refreshCache() const {
     std::unique_lock<std::timed_mutex> lock(refreshMutex_, std::defer_lock);
-    
+
     // Try to acquire lock, wait max REFRESH_BLOCKING_MAX_WAIT_MS milliseconds
     if (!lock.try_lock_for(std::chrono::milliseconds(REFRESH_BLOCKING_MAX_WAIT_MS))) {
       // Lock timeout, return using existing cache
@@ -360,9 +361,11 @@ private:
       RefreshResult result = doRefresh();
       cachedValue_ = std::make_shared<RefreshResult>(
           handleFetchedSuccess(result));
-    } catch (const std::exception& ex) {
+    } catch (...) {
+      // Use std::rethrow_exception to preserve original exception type
+      std::exception_ptr eptr = std::current_exception();
       cachedValue_ = std::make_shared<RefreshResult>(
-          handleFetchedFailure(ex));
+          handleFetchedFailure(eptr));
     }
   }
 
@@ -406,27 +409,46 @@ private:
 
   /**
    * @brief Handle refresh failure
+   * @param eptr Exception pointer to preserve original exception type
    */
-  RefreshResult handleFetchedFailure(const std::exception& ex) const {
+  RefreshResult handleFetchedFailure(std::exception_ptr eptr) const {
+    // Extract error message for logging
+    std::string errorMsg;
+    try {
+      std::rethrow_exception(eptr);
+    } catch (const std::exception& e) {
+      errorMsg = e.what();
+    } catch (...) {
+      errorMsg = "Unknown exception";
+    }
+
     if (!cachedValue_) {
-      throw ex;  // No cache, throw exception
+      Darabonba::Logger::warning(
+          "Refresh credentials failed, cached value is None, error: " + errorMsg);
+      std::rethrow_exception(eptr);  // No cache, rethrow original exception
     }
 
     int64_t now = getCurrentTime();
     if (now < cachedValue_->staleTime) {
+      Darabonba::Logger::warning(
+          "Refresh credentials failed, using cached value. error: " + errorMsg);
       return *cachedValue_;  // Cache not expired, return cache
     }
 
     consecutiveRefreshFailures_++;
 
     if (staleValueBehavior_ == StaleValueBehavior::STRICT_) {
-      throw ex;  // Strict mode: throw exception
+      Darabonba::Logger::warning(
+          "Refresh credentials failed, cached value is expired. error: " + errorMsg);
+      std::rethrow_exception(eptr);  // Strict mode: rethrow original exception
     } else {
       // Allow mode: extend expiration time with exponential backoff
+      Darabonba::Logger::warning(
+          "Refresh credentials failed, using expired cached value with backoff. error: " + errorMsg);
       int64_t backoffMillis = std::max(10000LL, (1LL << (consecutiveRefreshFailures_ - 1)) * 100);
       int64_t jitter = (rand() % (backoffMillis / 2)) + backoffMillis;
       int64_t newStaleTime = now + jitter / 1000;
-      
+
       return RefreshResult(cachedValue_->credential, newStaleTime, cachedValue_->prefetchTime);
     }
   }

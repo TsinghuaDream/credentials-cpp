@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <alibabacloud/credentials/provider/RefreshableProvider.hpp>
+#include <alibabacloud/credentials/Exception.hpp>
 #include <alibabacloud/credentials/Constant.hpp>
 #include <thread>
 #include <chrono>
@@ -60,6 +61,51 @@ private:
   mutable int refreshCount_;
   mutable bool shouldFail_;
   mutable int64_t customExpiration_;
+};
+
+// Test provider that throws CredentialException with detailed error info
+class TestCredentialExceptionProvider : public RefreshableProvider {
+public:
+  TestCredentialExceptionProvider(
+      StaleValueBehavior behavior = StaleValueBehavior::STRICT_)
+      : RefreshableProvider(behavior,
+                            std::make_shared<OneCallerBlocksPrefetch>()),
+        shouldFail_(false),
+        errorMessage_(""),
+        errorCode_("") {}
+
+  void setShouldFailWithCredentialException(const std::string& message,
+                                            const std::string& code = "") {
+    shouldFail_ = true;
+    errorMessage_ = message;
+    errorCode_ = code;
+  }
+
+  void resetShouldFail() { shouldFail_ = false; }
+
+  std::string getProviderName() const override {
+    return "test_credential_exception";
+  }
+
+protected:
+  RefreshResult doRefresh() const override {
+    if (shouldFail_) {
+      throw CredentialException(errorMessage_, errorCode_, "test-request-id");
+    }
+
+    int64_t now = getCurrentTime();
+    Models::CredentialModel credential;
+    credential.setType(Constant::ACCESS_KEY)
+              .setAccessKeyId("test_ak")
+              .setAccessKeySecret("test_secret");
+
+    return RefreshResult(credential, now + 3600, now + 3420);
+  }
+
+private:
+  mutable bool shouldFail_;
+  std::string errorMessage_;
+  std::string errorCode_;
 };
 
 TEST(RefreshableProviderTest, DefaultConstructor) {
@@ -397,4 +443,111 @@ TEST(RefreshableProviderTest, MultipleProviderInstancesIndependent) {
   // Each provider should have its own state
   EXPECT_EQ(1, provider1.getRefreshCount());
   EXPECT_EQ(1, provider2.getRefreshCount());
+}
+
+// ==================== Exception Type Preservation Tests ====================
+// These tests verify that CredentialException details are preserved when rethrown
+
+TEST(RefreshableProviderTest, CredentialExceptionPreservedOnFirstFailure) {
+  // Test: First call fails with CredentialException - should preserve all error details
+  TestCredentialExceptionProvider provider(StaleValueBehavior::STRICT_);
+  provider.setShouldFailWithCredentialException(
+      "NoPermission: You are not authorized to do this action",
+      "NoPermission");
+
+  try {
+    provider.getCredential();
+    FAIL() << "Expected CredentialException to be thrown";
+  } catch (const CredentialException& e) {
+    // Verify exception details are preserved
+    EXPECT_EQ("NoPermission", e.getCode());
+    EXPECT_EQ("NoPermission: You are not authorized to do this action", e.getMessage());
+    EXPECT_EQ("test-request-id", e.getRequestId());
+  } catch (const std::exception& e) {
+    FAIL() << "Expected CredentialException, got std::exception with message: "
+           << e.what();
+  }
+}
+
+TEST(RefreshableProviderTest, CredentialExceptionMessagePreserved) {
+  // Test: Verify the actual error message from API is preserved
+  TestCredentialExceptionProvider provider(StaleValueBehavior::STRICT_);
+
+  // Simulate the actual error response from Alibaba Cloud API
+  std::string apiErrorResponse =
+      "{\"RequestId\":\"ABC123\",\"Code\":\"InvalidAccessKeyId.NotFound\","
+      "\"Message\":\"Specified access key is not found.\"}";
+
+  provider.setShouldFailWithCredentialException(
+      "InvalidAccessKeyId.NotFound: Specified access key is not found.",
+      "InvalidAccessKeyId.NotFound");
+
+  try {
+    provider.getCredential();
+    FAIL() << "Expected CredentialException";
+  } catch (const CredentialException& e) {
+    EXPECT_EQ("InvalidAccessKeyId.NotFound", e.getCode());
+    EXPECT_TRUE(e.getMessage().find("access key is not found") != std::string::npos);
+  }
+}
+
+TEST(RefreshableProviderTest, CredentialExceptionVsStdException) {
+  // Test: Ensure we're not just catching std::exception - the original type must be preserved
+  TestCredentialExceptionProvider provider(StaleValueBehavior::STRICT_);
+  provider.setShouldFailWithCredentialException("Test error message", "TestCode");
+
+  bool caughtCredentialException = false;
+  bool caughtStdException = false;
+  std::string whatMessage;
+
+  try {
+    provider.getCredential();
+  } catch (const CredentialException& e) {
+    caughtCredentialException = true;
+    whatMessage = e.what();
+  } catch (const std::exception& e) {
+    caughtStdException = true;
+    whatMessage = e.what();
+  }
+
+  EXPECT_TRUE(caughtCredentialException) << "Should catch CredentialException specifically";
+  EXPECT_FALSE(caughtStdException) << "Should not fall through to std::exception";
+  EXPECT_EQ("Test error message", whatMessage);
+}
+
+TEST(RefreshableProviderTest, CredentialExceptionWithCacheAllowsFallback) {
+  // Test: With ALLOW mode, should use cache even when exception is thrown
+  TestCredentialExceptionProvider provider(StaleValueBehavior::ALLOW_);
+
+  // First, get a valid credential
+  auto cred1 = provider.getCredential();
+  EXPECT_EQ("test_ak", cred1.getAccessKeyId());
+
+  // Now fail with CredentialException - should still return cached value
+  provider.setShouldFailWithCredentialException("Temporary failure", "TempError");
+
+  // ALLOW mode should return cached credential
+  EXPECT_NO_THROW({
+    auto cred2 = provider.getCredential();
+    EXPECT_EQ("test_ak", cred2.getAccessKeyId());
+  });
+}
+
+TEST(RefreshableProviderTest, CredentialExceptionWithExpiredCacheStrictMode) {
+  // Test: With STRICT mode and expired cache, CredentialException should be thrown
+  TestRefreshableProvider provider(StaleValueBehavior::STRICT_);
+
+  // Get initial credential with short expiration
+  int64_t shortExpiration = static_cast<int64_t>(std::time(nullptr)) + 1;
+  provider.setCustomExpiration(shortExpiration);
+  provider.getCredential();
+
+  // Wait for expiration
+  std::this_thread::sleep_for(std::chrono::seconds(2));
+
+  // Make refresh fail
+  provider.setShouldFail(true);
+
+  // Should throw - and the exception should be the original type
+  EXPECT_THROW({ provider.getCredential(); }, std::exception);
 }

@@ -191,8 +191,30 @@ RefreshResult EcsRamRoleProvider::doRefresh() const {
   Darabonba::RuntimeOptions runtime;
   runtime.setConnectTimeout(connectTimeout_);
   runtime.setReadTimeout(readTimeout_);
-  auto future = Darabonba::Core::doAction(req, runtime);
-  auto resp = future.get();
+
+  std::shared_ptr<Darabonba::Http::MCurlResponse> resp;
+  try {
+    auto future = Darabonba::Core::doAction(req, runtime);
+    resp = future.get();
+  } catch (const std::exception& e) {
+    throw CredentialException(
+        ECS_METADATA_FETCH_ERROR_MSG +
+        " This may indicate you are not running in an ECS/ECI environment. "
+        "Error: " + std::string(e.what()));
+  }
+
+  if (!resp) {
+    throw CredentialException(
+        ECS_METADATA_FETCH_ERROR_MSG +
+        " No response received. Please ensure you are running in an ECS/ECI environment.");
+  }
+
+  if (resp->getStatusCode() == 0) {
+    throw CredentialException(
+        ECS_METADATA_FETCH_ERROR_MSG +
+        " Connection failed (HttpCode=0). This usually means you are not running in an ECS/ECI environment. "
+        "The ECS metadata service (100.100.100.200) is only accessible from within Alibaba Cloud ECS instances.");
+  }
 
   if (resp->getStatusCode() != 200) {
     throw CredentialException(ECS_METADATA_FETCH_ERROR_MSG + " HttpCode=" +
@@ -242,8 +264,23 @@ std::string EcsRamRoleProvider::getRoleName() const {
   Darabonba::RuntimeOptions runtime;
   runtime.setConnectTimeout(connectTimeout_);
   runtime.setReadTimeout(readTimeout_);
-  auto future = Darabonba::Core::doAction(req, runtime);
-  auto resp = future.get();
+
+  std::shared_ptr<Darabonba::Http::MCurlResponse> resp;
+  try {
+    auto future = Darabonba::Core::doAction(req, runtime);
+    resp = future.get();
+  } catch (const std::exception& e) {
+    throw CredentialException(
+        ECS_METADATA_FETCH_ERROR_MSG +
+        " Failed to get role name. This may indicate you are not running in an ECS/ECI environment. "
+        "Error: " + std::string(e.what()));
+  }
+
+  if (!resp || resp->getStatusCode() == 0) {
+    throw CredentialException(
+        ECS_METADATA_FETCH_ERROR_MSG +
+        " Connection failed. Please ensure you are running in an ECS/ECI environment.");
+  }
 
   if (resp->getStatusCode() != 200) {
     throw CredentialException(ECS_METADATA_FETCH_ERROR_MSG + " HttpCode=" +

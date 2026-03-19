@@ -571,7 +571,7 @@ TEST(URLProviderTest, ConstructorWithPrefetchStrategy) {
 
 TEST(URLProviderTest, ConstructorWithConfigAndBehavior) {
   auto config = std::make_shared<Models::Config>();
-  config->setCredentialsURL("http://example.com/credentials");
+  config->setCredentialsUri("http://example.com/credentials");
 
   URLProvider provider(config, StaleValueBehavior::ALLOW_);
 
@@ -582,7 +582,7 @@ TEST(URLProviderTest, ConstructorWithConfigAndBehavior) {
 
 TEST(URLProviderTest, EmptyUrlThrowsException) {
   auto config = std::make_shared<Models::Config>();
-  // No credentialsURL set
+  // No credentialsUri set
 
   EXPECT_THROW({
     URLProvider provider(config);

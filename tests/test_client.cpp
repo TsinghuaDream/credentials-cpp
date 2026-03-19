@@ -208,7 +208,7 @@ TEST_F(ClientTest, OIDCRoleArnClient) {
 
 TEST_F(ClientTest, URLProviderClient) {
     Models::Config config;
-    config.setCredentialsURL("http://credentials.example.com")
+    config.setCredentialsUri("http://credentials.example.com")
           .setType(Constant::URL_STS);
     
     EXPECT_NO_THROW({

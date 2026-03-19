@@ -11,7 +11,7 @@ URLProvider::URLProvider(std::shared_ptr<Models::Config> config,
                          StaleValueBehavior behavior,
                          std::shared_ptr<PrefetchStrategy> strategy)
     : RefreshableProvider(behavior, strategy),
-      url_(config->getCredentialsURL()),
+      url_(config->getCredentialsUri()),
       connectTimeout_(config->hasConnectTimeout() ? config->getConnectTimeout() : 10000),
       readTimeout_(config->hasTimeout() ? config->getTimeout() : 5000) {
   if (url_.empty()) {
@@ -45,8 +45,19 @@ RefreshResult URLProvider::doRefresh() const {
   runtime.setReadTimeout(readTimeout_);
   auto future = Darabonba::Core::doAction(req, runtime);
   auto resp = future.get();
-  if (resp->getStatusCode() != 200) {
-    throw CredentialException(Darabonba::Stream::readAsString(resp->getBody()));
+
+  // Check for network failure (resp is nullptr or status code 0)
+  if (!resp) {
+    throw CredentialException("Failed to connect to credentials URL: " + url_);
+  }
+
+  int statusCode = resp->getStatusCode();
+  if (statusCode != 200) {
+    std::string body = Darabonba::Stream::readAsString(resp->getBody());
+    std::string errorMsg = body.empty()
+        ? "HTTP request failed with status code " + std::to_string(statusCode)
+        : body;
+    throw CredentialException(errorMsg);
   }
   const auto &result = Darabonba::Stream::readAsJSON(resp->getBody());
   if (result["Code"].get<std::string>() != "Success") {

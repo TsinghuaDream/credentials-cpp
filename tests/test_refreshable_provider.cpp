@@ -597,7 +597,7 @@ TEST(RefreshableProviderTest, ConcurrentRandomAccessIsThreadSafe) {
   std::atomic<int> successCount(0);
 
   for (int i = 0; i < numThreads; ++i) {
-    threads.emplace_back([&successCount]() {
+    threads.emplace_back([&successCount, iterationsPerThread]() {
       for (int j = 0; j < iterationsPerThread; ++j) {
         TestRefreshableProvider provider(StaleValueBehavior::ALLOW_);
 

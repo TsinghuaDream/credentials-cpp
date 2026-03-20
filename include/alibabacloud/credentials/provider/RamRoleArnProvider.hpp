@@ -40,13 +40,12 @@ public:
 
 protected:
   /**
-   * @brief Implement credential refresh logic (corresponds to Java refreshCredentials)
+   * @brief Implement credential refresh logic
    */
   virtual RefreshResult doRefresh() const override;
 
   /**
    * @brief Calculate stale time (expiration - 15 minutes)
-   * Corresponds to Java SessionCredentialsProvider.getStaleTime()
    */
   int64_t getStaleTime(int64_t expiration) const;
 

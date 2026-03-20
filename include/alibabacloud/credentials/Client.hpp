@@ -22,18 +22,15 @@ class ALIBABACLOUD_CREDENTIALS_EXPORT Client : public Darabonba::Model {
   }
 
 public:
-  // Constructor 1: Default constructor
-  // Equivalent to Java: public Client()
+  // Default constructor
   Client();
-  
-  // Constructor 2: Config-based constructors (3 overloads for different config types)
-  // Equivalent to Java: public Client(Config config)
+
+  // Config-based constructors (3 overloads for different config types)
   Client(const Models::Config &obj);
   Client(Models::Config &&obj);
   Client(std::shared_ptr<Models::Config> config);
-  
-  // Constructor 3: Provider-based constructor
-  // Equivalent to Java: public Client(AlibabaCloudCredentialsProvider provider)
+
+  // Provider-based constructor
   Client(std::shared_ptr<Provider> provider);
   
   Client(const Client &) = default;

@@ -17,7 +17,7 @@ namespace Credentials {
 /**
  * @brief ECS RAM role credential provider (async refresh version)
  *
- * Fully corresponds to Java SDK's EcsRamRoleCredentialProvider implementation:
+ * Features:
  * - Background scheduled refresh (shared global thread, checks every 1 minute)
  * - IMDSv2/IMDSv1 auto-switch
  * - ALLOW mode tolerates refresh failures

@@ -15,7 +15,6 @@ namespace Credentials {
 /**
  * @brief RSA Key Pair credential provider
  *
- * Fully corresponds to Java SDK's RsaKeyPairCredentialProvider implementation.
  * Uses RefreshableProvider for automatic credential refresh with:
  * - 15 minutes stale time window (refresh 15 minutes before expiration)
  * - Async background refresh support
@@ -44,13 +43,12 @@ public:
 
 protected:
   /**
-   * @brief Implement credential refresh logic (corresponds to Java refreshCredentials)
+   * @brief Implement credential refresh logic
    */
   virtual RefreshResult doRefresh() const override;
 
   /**
    * @brief Calculate stale time (expiration - 15 minutes)
-   * Corresponds to Java SessionCredentialsProvider.getStaleTime()
    */
   int64_t getStaleTime(int64_t expiration) const;
 

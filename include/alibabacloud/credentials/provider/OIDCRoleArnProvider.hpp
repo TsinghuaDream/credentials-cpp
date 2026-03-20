@@ -38,7 +38,7 @@ public:
 
 protected:
   /**
-   * @brief Implement credential refresh logic (corresponds to Java refreshCredentials)
+   * @brief Implement credential refresh logic
    */
   virtual RefreshResult doRefresh() const override;
 

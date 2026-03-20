@@ -10,6 +10,7 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
+#include <random>
 #include <sstream>
 #include <thread>
 
@@ -132,8 +133,7 @@ public:
 
 /**
  * @brief Refreshable credential provider base class
- * 
- * Reference Python SDK's RefreshCachedSupplier implementation
+ *
  * Provides async background refresh mechanism with:
  * - 180 seconds prefetch refresh
  * - 15 minutes expiration time window
@@ -171,7 +171,6 @@ public:
    * @note Returns a copy for safety. Uses copy-on-write pattern:
    *       - Read: lock-free, just copy the cached shared_ptr
    *       - Write: atomic replacement of the entire shared_ptr
-   *       This matches Python's implementation for optimal performance.
    */
   virtual Models::CredentialModel getCredential() const override {
     // Fast path: check if we need to refresh (lock-free)
@@ -402,7 +401,7 @@ private:
       return RefreshResult(cachedValue_->credential, now + 1, cachedValue_->prefetchTime);
     } else {
       // Allow mode: extend expiration time with random jitter
-      int64_t jitter = (rand() % 20000 + 50000) / 1000;  // 50-70 seconds
+      int64_t jitter = randomInt(50, 70);  // 50-70 seconds
       return RefreshResult(cachedValue_->credential, now + jitter, cachedValue_->prefetchTime);
     }
   }
@@ -445,9 +444,12 @@ private:
       // Allow mode: extend expiration time with exponential backoff
       Darabonba::Logger::warning(
           "Refresh credentials failed, using expired cached value with backoff. error: " + errorMsg);
-      int64_t backoffMillis = std::max(10000LL, (1LL << (consecutiveRefreshFailures_ - 1)) * 100);
-      int64_t jitter = (rand() % (backoffMillis / 2)) + backoffMillis;
-      int64_t newStaleTime = now + jitter / 1000;
+
+      // maxJitter: max(10000ms, 2^(n-1)*100ms)
+      int64_t maxJitterMillis = std::max(10000LL, (1LL << (consecutiveRefreshFailures_ - 1)) * 100);
+      // jitter: [1000ms, maxJitterMillis-1ms]
+      int64_t jitterMillis = randomInt(1000, maxJitterMillis - 1);
+      int64_t newStaleTime = now + jitterMillis / 1000;  // convert to seconds
 
       return RefreshResult(cachedValue_->credential, newStaleTime, cachedValue_->prefetchTime);
     }
@@ -455,10 +457,9 @@ private:
 
   /**
    * @brief Close and clean up resources
-   * 
+   *
    * This method should be called before the provider is destroyed
    * to ensure any background threads are properly stopped.
-   * Same as Java SDK's close() method.
    */
   void close() {
     if (prefetchStrategy_) {
@@ -469,13 +470,20 @@ private:
   }
 
 private:
+  // Thread-safe random number generator
+  static int64_t randomInt(int64_t min, int64_t max) {
+    static thread_local std::mt19937 gen(std::random_device{}());
+    std::uniform_int_distribution<int64_t> dist(min, max);
+    return dist(gen);
+  }
+
   // Member variables
   StaleValueBehavior staleValueBehavior_;
   std::shared_ptr<PrefetchStrategy> prefetchStrategy_;
-  
+
   mutable std::atomic<int> consecutiveRefreshFailures_;
   mutable std::shared_ptr<RefreshResult> cachedValue_;
-  
+
   mutable std::timed_mutex refreshMutex_;  // Refresh lock
   mutable std::mutex accessMutex_;   // Access lock
 };

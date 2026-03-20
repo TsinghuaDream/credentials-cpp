@@ -51,7 +51,7 @@ RefreshResult URLProvider::doRefresh() const {
     throw CredentialException("Failed to connect to credentials URL: " + url_);
   }
 
-  int statusCode = resp->getStatusCode();
+  int statusCode = static_cast<int>(resp->getStatusCode());
   if (statusCode != 200) {
     std::string body = Darabonba::Stream::readAsString(resp->getBody());
     std::string errorMsg = body.empty()

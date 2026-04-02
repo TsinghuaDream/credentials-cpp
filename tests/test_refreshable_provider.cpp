@@ -590,14 +590,14 @@ TEST(RefreshableProviderTest, ConcurrentRandomAccessIsThreadSafe) {
   // Test: Verify that concurrent access to the random generator doesn't cause issues
   // This proves thread_local std::mt19937 is safer than global rand()
 
-  const int numThreads = 20;
-  const int iterationsPerThread = 100;
+  static constexpr int numThreads = 20;
+  static constexpr int iterationsPerThread = 100;
   std::vector<std::thread> threads;
   std::vector<bool> results(numThreads, true);
   std::atomic<int> successCount(0);
 
   for (int i = 0; i < numThreads; ++i) {
-    threads.emplace_back([&successCount, iterationsPerThread]() {
+    threads.emplace_back([&successCount]() {
       for (int j = 0; j < iterationsPerThread; ++j) {
         TestRefreshableProvider provider(StaleValueBehavior::ALLOW_);
 
@@ -743,7 +743,7 @@ TEST(RefreshableProviderTest, OldRandBugWouldProduceSameSequence) {
   }
 
   // All threads should succeed with thread-safe random
-  EXPECT_EQ(10, jitterValues.size());
+  EXPECT_EQ(10UL, jitterValues.size());
 }
 
 TEST(RefreshableProviderTest, RandomDistributionIsUniform) {
